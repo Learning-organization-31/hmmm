@@ -28,7 +28,6 @@ export default {
     //修改精选题库的数据内容
     SET_CHOICE_INFO(state, payload) {
       state.choiceInfo = payload;
-      console.log(state.choiceInfo);
     },
     //修改精选题库搜索所需条件页码
     SET_DATA_PAGE(state, payload) {

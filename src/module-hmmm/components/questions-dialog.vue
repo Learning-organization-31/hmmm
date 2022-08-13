@@ -121,7 +121,6 @@ export default {
       });
       this.checkboxNum = arr;
       this.arr = arr;
-      console.log(this.checkboxNum);
     },
 
     //关闭弹窗触发
