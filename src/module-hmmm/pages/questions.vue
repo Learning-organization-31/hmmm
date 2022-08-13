@@ -1,9 +1,11 @@
 <template>
-  <div class='container'>题组管理</div>
+  <div class="container">
+    <el-card class="box-card">11</el-card>
+  </div>
 </template>
 
 <script>
-export default {}
+export default {};
 </script>
 
-<style scoped lang='less'></style>
+<style scoped lang="less"></style>
