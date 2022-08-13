@@ -56,7 +56,7 @@ export default {
       context.state.loading = true;
       const obj = {};
       for (let key in payload) {
-        if (payload[key]) {
+        if (payload[key] || payload[key] === 0 || payload[key] === "0") {
           obj[key] = payload[key];
         }
       }

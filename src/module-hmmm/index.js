@@ -12,6 +12,7 @@ import routerMaps from "./router";
 // vuex
 // import app from "./store/app";
 import questionsList from "./store/questionsList";
+import questionsChoice from "./store/questionsChoice";
 
 export default {
   install(module, store) {
@@ -24,6 +25,7 @@ export default {
     if (store !== undefined) {
       // store.registerModule("app", app);
       store.registerModule("questionsList", questionsList);
+      store.registerModule("questionsChoice", questionsChoice);
     }
   },
 };

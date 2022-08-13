@@ -116,14 +116,8 @@ export default {
         });
         await choiceAdd({ id, choiceState: 1 });
         this.$message.success("加入精选成功成功");
-        //成功判断当前页面是不是没有数据,没有数据向前一页获取数据
-        if (
-          this.baseList.counts % this.baseList.pagesize === 1 &&
-          this.params.page > 1
-        ) {
-          this.SET_PARAMS_PAGE(this.params.page - 1);
-        }
-        this.getBaseList(this.params);
+        //成功跳转精品题库
+        this.$router.push("/questions/choice");
       } catch (error) {
         if (error === "cancel") return;
         console.log(error);

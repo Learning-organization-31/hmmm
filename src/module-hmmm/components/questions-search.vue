@@ -197,7 +197,6 @@
 <script>
 import { questionType, difficulty, direction } from "@/api/hmmm/constants";
 import { provinces, citys } from "@/api/hmmm/citys";
-import { list } from "@/api/hmmm/subjects";
 import { simple } from "@/api/hmmm/directorys";
 import { simple as tagsSimple } from "@/api/hmmm/tags";
 import { simple as userSimple } from "@/api/base/users";
@@ -210,7 +209,6 @@ export default {
       direction,
       provinces: provinces(),
       citys,
-      list: [], //学科列表
       catalogList: [], //目录列表
       tagsList: [], //标签列表
       userList: [],
@@ -232,8 +230,6 @@ export default {
   },
 
   created() {
-    //获取学科列表
-    this.getList();
     //获取录入人列表
     this.getUserSimple();
   },
@@ -255,11 +251,6 @@ export default {
       this.tagsList = (await tagsSimple({ subjectID: id })).data;
     },
 
-    //获取学科列表
-    async getList() {
-      this.list = (await list({ pagesize: 10000 })).data.items;
-    },
-
     //获取录入人列表
     async getUserSimple() {
       this.userList = (await userSimple()).data;
@@ -270,6 +261,12 @@ export default {
       for (let key in this.params) {
         this.params[key] = "";
       }
+    },
+  },
+
+  props: {
+    list: {
+      type: Array,
     },
   },
 
