@@ -1,3 +1,5 @@
+
+import dayjs from 'dayjs'
 function pluralize (time, label) {
   if (time === 1) {
     return time + label
@@ -159,3 +161,7 @@ export function toThousandslsFilter (num) {
     .toString()
     .replace(/^-?\d+/g, m => m.replace(/(?=(?!\b)(\d{3})+$)/g, ','))
 }
+
+export const formateTime =(val) =>{
+  return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
+ }
