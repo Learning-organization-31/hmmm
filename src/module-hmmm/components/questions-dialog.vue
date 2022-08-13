@@ -68,7 +68,12 @@
         </el-button>
       </div>
       <div class="video" v-if="videoIsShow">
-        <video :src="detailInfo.videoURL" controls="controls"></video>
+        <video
+          :src="detailInfo.videoURL"
+          controls="controls"
+          autoplay
+          muted="muted"
+        ></video>
       </div>
       <hr />
       <div class="div">

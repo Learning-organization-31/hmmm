@@ -247,6 +247,9 @@ export default {
 
     //通过点击学科获取二级目录和标签数据
     async subjectChange(id) {
+      //学科有变化清空二级目录和标签的内容
+      this.params.catalogID = "";
+      this.params.tags = "";
       this.catalogList = (await simple({ subjectID: id })).data;
       this.tagsList = (await tagsSimple({ subjectID: id })).data;
     },

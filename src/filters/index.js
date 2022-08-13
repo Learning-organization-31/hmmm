@@ -1,4 +1,4 @@
-import { questionType, difficulty } from "@/api/hmmm/constants";
+import { questionType, difficulty, chkType } from "@/api/hmmm/constants";
 
 function pluralize(time, label) {
   if (time === 1) {
@@ -178,7 +178,7 @@ export function toThousandslsFilter(num) {
 
 export const getQuestionType = (val) => {
   if (!val) return;
-  return questionType.find((item) => item.value == val).label;
+  return questionType.find((item) => item.value == val)?.label;
 };
 
 // {
@@ -196,5 +196,23 @@ export const getQuestionType = (val) => {
 // 初始化难度
 export const getDifficulty = (val) => {
   if (!val) return;
-  return difficulty.find((item) => item.value == val).label;
+  return difficulty.find((item) => item.value == val)?.label;
+};
+
+//初始化审核状态
+export const getChkType = (val) => {
+  return chkType.find((item) => item.value == val)?.label;
+};
+
+//初始化发布状态
+export const getPublishType = ({ publishState, chkState }) => {
+  if (chkState === 1) {
+    if (publishState === 1) {
+      return "已发布";
+    } else {
+      return "已下架";
+    }
+  } else {
+    return "待发布";
+  }
 };
