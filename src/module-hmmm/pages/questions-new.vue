@@ -144,9 +144,9 @@
 
             <el-upload
               class="avatar-uploader"
-              action="https://jsonplaceholder.typicode.com/posts/"
+              action="#"
+              :http-request="httpRequest"
               :show-file-list="false"
-              :on-success="handleAvatarSuccess"
               @click.native="clickUpLoad(index, $event)"
               :before-upload="beforeAvatarUpload"
             >
@@ -188,10 +188,10 @@
 
             <el-upload
               class="avatar-uploader"
-              action="https://jsonplaceholder.typicode.com/posts/"
+              action="#"
+              :http-request="httpRequest"
               :show-file-list="false"
               @click.native="clickUpLoad(index, $event)"
-              :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
             >
               <img v-if="item.img" :src="item.img" class="avatar" />
@@ -259,6 +259,11 @@
 </template>
 
 <script>
+import COS from "cos-js-sdk-v5";
+const cos = new COS({
+  SecretId: "AKIDb3IJ5f191g7KI2ZrujLjsmQr43nMhpjO",
+  SecretKey: "VlmZ7RaU9dssmJchX8WgaFhGH2YqujId",
+});
 const toolbarOptions = [
   ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线 -----['bold', 'italic', 'underline', 'strike']
   [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表-----[{ list: 'ordered' }, { list: 'bullet' }]
@@ -375,7 +380,9 @@ export default {
         tags: [{ required: true, message: "请选择试题", trigger: "change" }],
       },
       imgIndex: "",
+      index: "",
       queryId: "",
+      imgFlag: true,
     };
   },
 
@@ -398,19 +405,44 @@ export default {
     },
 
     // 图片
-    handleAvatarSuccess(res, file) {
-      this.body.options[this.imgIndex].img = URL.createObjectURL(file.raw);
+    //自定义发送请求
+    httpRequest({ file }) {
+      cos.putObject(
+        {
+          Bucket: "bianling-1313341649" /* 必须 */,
+          Region: "ap-shanghai" /* 存储桶所在地域，必须字段 */,
+          Key: file.name /* 必须 */,
+          StorageClass: "STANDARD",
+          Body: file, // 上传文件对象
+        },
+        (err, data) => {
+          if (err || data.statusCode !== 200) {
+            this.imgFlag = true;
+            return this.$message.error("上传失败");
+          }
+          this.body.options[this.index].img = "http://" + data.Location;
+          this.imgFlag = true;
+        }
+      );
     },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
 
-      if (!isJPG) {
-        this.$message.error("上传图片只能是 JPG 格式!");
-        return false;
-      }
-      if (!isLt2M) {
-        this.$message.error("上传图片大小不能超过 2MB!");
+    beforeAvatarUpload(file) {
+      if (this.imgFlag) {
+        this.imgFlag = false;
+        this.index = this.imgIndex;
+        const isJPG = file.type === "image/jpeg";
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error("上传图片只能是 JPG 格式!");
+          return false;
+        }
+        if (!isLt2M) {
+          this.$message.error("上传图片大小不能超过 2MB!");
+          return false;
+        }
+      } else {
+        this.$message.error("当前有图片正在上传,请稍后重试");
         return false;
       }
     },
