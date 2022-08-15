@@ -40,6 +40,8 @@ export default {
   },
 
   created() {
+    //进入页面,页码清1
+    this.SET_DATA_PAGE(1);
     //获取学科列表
     this.getList();
 

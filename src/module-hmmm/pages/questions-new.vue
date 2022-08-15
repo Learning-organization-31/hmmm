@@ -212,7 +212,7 @@
         <quill-editor v-model="body.answer" :options="editorOption" />
       </el-form-item>
 
-      <el-form-item label="题目备注: ">
+      <el-form-item label="题目备注: " prop="remarks">
         <el-input
           type="textarea"
           style="width: 400px"
@@ -221,7 +221,7 @@
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="试题标签: ">
+      <el-form-item label="试题标签: " prop="tags">
         <el-select
           placeholder="请选择"
           style="width: 400px"
@@ -241,7 +241,7 @@
         <el-button type="primary" @click="fromSubmit" v-if="!queryId"
           >确认提交</el-button
         >
-        <el-button type="success" @click="fromSubmit" v-else
+        <el-button type="success" @click="setFromSubmit" v-else
           >确认修改</el-button
         >
       </el-form-item>
@@ -262,7 +262,7 @@ import { simple } from "@/api/hmmm/directorys";
 import { list as getTagsList } from "@/api/hmmm/tags";
 import { provinces, citys } from "@/api/hmmm/citys";
 import { direction, questionType, difficulty } from "@/api/hmmm/constants";
-import { add } from "@/api/hmmm/questions";
+import { add, detail as getDetailInfo, update } from "@/api/hmmm/questions";
 
 export default {
   name: "QuestionsNew",
@@ -320,7 +320,7 @@ export default {
         videoURL: "", //解析视频
         answer: "", //答案解析
         remarks: "", //题目备注
-        tags: "", //试题标签
+        tags: [], //试题标签
       },
       html: "",
       editorOption: {
@@ -360,6 +360,10 @@ export default {
         answer: [
           { required: true, message: "请输入答案解析", trigger: "blur" },
         ],
+        remarks: [
+          { required: true, message: "请输入题目备注", trigger: "blur" },
+        ],
+        tags: [{ required: true, message: "请选择试题", trigger: "change" }],
       },
       imgIndex: "",
       queryId: "",
@@ -368,6 +372,9 @@ export default {
 
   created() {
     this.queryId = this.$route.query.id;
+    if (this.queryId) {
+      this.getDetailInfo();
+    }
     //获取学科列表
     this.getSubjectsList();
     //获取企业列表
@@ -375,6 +382,7 @@ export default {
   },
 
   methods: {
+    // 图片
     handleAvatarSuccess(res, file) {
       this.body.options[this.imgIndex].img = URL.createObjectURL(file.raw);
     },
@@ -384,15 +392,40 @@ export default {
 
       if (!isJPG) {
         this.$message.error("上传图片只能是 JPG 格式!");
+        return false;
       }
       if (!isLt2M) {
         this.$message.error("上传图片大小不能超过 2MB!");
+        return false;
       }
-      return isJPG && isLt2M;
     },
     //上传图片需要先点击,把index存好,方便后续渲染图片用
-    clickUpLoad(index, e) {
+    clickUpLoad(index) {
       this.imgIndex = index;
+    },
+
+    //如果时修改页面发起请求获取修改数据
+    async getDetailInfo() {
+      const { data } = await getDetailInfo({ id: this.queryId });
+      data.difficulty = Number(data.difficulty);
+      data.questionType = Number(data.questionType);
+      data.tags = data.tags.split(",");
+      this.body = data;
+      //下方用于判断正确答案
+      console.log(this.body);
+      if (this.body.questionType === 1) {
+        // console.log("单选");
+        this.radioCheckout = this.body.options.find((item) => {
+          return item.isRight;
+        }).code;
+      } else if (this.body.questionType === 2) {
+        // console.log("多选");
+        this.body.options.forEach((item) => {
+          if (item.isRight) {
+            this.checkList.push(item.code);
+          }
+        });
+      }
     },
 
     //复选框状态发生改变时
@@ -455,6 +488,7 @@ export default {
       ).data.items;
       this.simpleList = data;
       this.body.catalogID = "";
+      this.body.tags = [];
     },
 
     //获取学科列表
@@ -466,9 +500,19 @@ export default {
 
     //确认按钮
     async fromSubmit() {
-      console.log(this.body);
       try {
         await this.$refs.ruleForm.validate();
+        //进行答案校验
+        if (this.body.questionType === 1) {
+          if (this.radioCheckout === "") {
+            return this.$message.error("单选题未选择答案");
+          }
+        } else if (this.body.questionType === 2) {
+          if (!this.checkList[1]) {
+            return this.$message.error("多选题至少选择两个答案");
+          }
+        }
+
         const obj = { ...this.body };
         obj.difficulty = String(obj.difficulty);
         obj.questionType = String(obj.questionType);
@@ -517,7 +561,33 @@ export default {
           remarks: "", //题目备注
           tags: "", //试题标签
         };
+        this.tagsList = [];
         this.$refs.ruleForm.resetFields();
+      } catch (error) {}
+    },
+
+    //修改按钮
+    async setFromSubmit() {
+      try {
+        await this.$refs.ruleForm.validate();
+        //进行答案校验
+        if (this.body.questionType === 1) {
+          if (this.radioCheckout === "") {
+            return this.$message.error("单选题未选择答案");
+          }
+        } else if (this.body.questionType === 2) {
+          if (!this.checkList[1]) {
+            return this.$message.error("多选题至少选择两个答案");
+          }
+        }
+
+        const obj = { ...this.body };
+        obj.difficulty = String(obj.difficulty);
+        obj.questionType = String(obj.questionType);
+        obj.tags = obj.tags.join(",");
+        await update(obj);
+        this.$message.success("修改成功");
+        this.$push("/questions/list");
       } catch (error) {}
     },
   },

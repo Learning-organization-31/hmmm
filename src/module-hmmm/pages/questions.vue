@@ -26,6 +26,8 @@ export default {
   },
 
   created() {
+    //进入页面页码清1
+    this.SET_PARAMS_PAGE(1);
     //获取学科列表
     this.getList();
   },
@@ -43,7 +45,7 @@ export default {
     },
 
     ...mapActions("questionsList", ["getBaseList"]),
-    ...mapMutations("questionsList", ["SET_PARAMS"]),
+    ...mapMutations("questionsList", ["SET_PARAMS", "SET_PARAMS_PAGE"]),
   },
 
   computed: {
