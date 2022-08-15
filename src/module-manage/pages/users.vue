@@ -11,7 +11,7 @@
       <!-- 警告框 -->
       <el-alert
         style="margin-top: 18px; margin-bottom: 18px"
-        title="共 2 条记录"
+        :title="'共 ' + total + ' 条记录'"
         type="info"
         show-icon
         :closable="false"
@@ -54,7 +54,7 @@
               plain
               icon="el-icon-edit"
               circle
-              @click="exitUser(row)"
+              @click="exitUser(row.id)"
             ></el-button>
             <el-button
               type="danger"
@@ -82,7 +82,7 @@
     <!-- 新增用户弹出层 -->
     <userAdd
       ref="userAdd"
-      text="创建"
+      :text="userAddText"
       pageTitle="用户"
       :formBase="formBase"
       :ruleInline="ruleInline"
@@ -98,7 +98,7 @@ import headerTool from "../components/header-tool";
 import pageTool from "../components/page-tool.vue";
 import userAdd from "../components/user-add.vue";
 import { mapActions, mapState } from "vuex";
-import { remove } from "@/api/base/users";
+import { remove, detail } from "@/api/base/users";
 export default {
   data() {
     return {
@@ -117,6 +117,7 @@ export default {
         permission_group_id: "",
         phone: "",
         introduction: "",
+        avatar: "",
       },
       ruleInline: {
         username: [
@@ -127,6 +128,7 @@ export default {
           { required: true, message: "密码不能为空", trigger: "blur" },
         ],
       },
+      userAddText: "",
     };
   },
   components: { headerTool, userAdd, pageTool },
@@ -147,15 +149,24 @@ export default {
     },
 
     // 点击编辑用户
-    exitUser(userInfo) {
-      this.formBase = { ...this.formBase, ...userInfo };
-      console.log(this.formBase);
+    async exitUser(id) {
+      this.userAddText = "编辑";
       this.$refs.userAdd.dialogFormV();
       this.getpermissionSimpleList();
+      const { data } = await detail(id);
+      this.formBase.username = data.username;
+      this.formBase.email = data.email;
+      this.formBase.email = data.email;
+      this.formBase.role = data.role;
+      this.formBase.permission_group_id = data.permission_group_id;
+      this.formBase.phone = data.phone;
+      this.formBase.introduction = data.introduction;
+      this.formBase.id = data.id;
     },
 
     // 点击新增用户
     rightBtn() {
+      this.userAddText = "创建";
       this.$refs.userAdd.dialogFormV();
       this.getpermissionSimpleList();
     },
@@ -183,6 +194,7 @@ export default {
         .then(async () => {
           await remove(userid);
           this.$message.success("删除成功");
+          this.getUsersList();
         })
         .catch(() => {
           this.$message.info("已取消操作");
@@ -191,21 +203,23 @@ export default {
 
     // 点击搜索
     OnSearch(keyword) {
-      if (!this.formLoading) return; // 防抖
+      if (this.formLoading) return; // 防抖
+      this.getUserTerm.page = 1;
       this.getUserTerm.username = keyword;
       this.getUsersList();
     },
 
     // 点击清空
     Onremove() {
-      if (!this.formLoading || !this.getUserTerm.username) return; // 防抖
+      if (this.formLoading || !this.getUserTerm.username) return; // 防抖
       this.getUserTerm.username = "";
+      this.getUserTerm.page = 1;
       this.getUsersList();
     },
 
     // 切换page
     pageChange(pageNum) {
-      if (!this.formLoading) return; // 防抖
+      if (this.formLoading) return; // 防抖
       this.getUserTerm.page = pageNum;
       this.getUsersList();
     },

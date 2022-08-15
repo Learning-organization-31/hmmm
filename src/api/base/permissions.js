@@ -6,7 +6,7 @@ export const simple = () => createAPI("/permissions/simple", "get");
 export const add = (data) => createAPI("/permissions", "post", data);
 export const update = (data) =>
   createAPI(`/permissions/${data.id}`, "put", data);
-export const remove = (data) =>
-  createAPI(`/permissions/${data.id}`, "delete", data);
-export const detail = (data) =>
-  createAPI(`/permissions/${data.id}`, "get", data);
+// 权限组删除
+export const remove = (id) => createAPI(`/permissions/${id}`, "delete");
+// 权限组详情
+export const detail = (id) => createAPI(`/permissions/${id}`, "get");
