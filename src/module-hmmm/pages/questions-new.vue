@@ -152,6 +152,10 @@
             >
               <img v-if="item.img" :src="item.img" class="avatar" />
               <p v-else>上传图片</p>
+              <i
+                class="el-icon-circle-close"
+                @click="removeImg(index, $event)"
+              ></i>
             </el-upload>
           </div>
           <el-button
@@ -173,7 +177,8 @@
           <div
             v-for="(item, index) in body.options"
             :key="index"
-            class="active check"
+            class="active"
+            :class="index === 0 ? 'check' : 'check1'"
           >
             <el-checkbox :label="item.code"> {{ item.code }}： </el-checkbox>
             <el-input
@@ -191,6 +196,10 @@
             >
               <img v-if="item.img" :src="item.img" class="avatar" />
               <p v-else>上传图片</p>
+              <i
+                class="el-icon-circle-close"
+                @click="removeImg(index, $event)"
+              ></i>
             </el-upload>
           </div>
           <el-button
@@ -382,6 +391,12 @@ export default {
   },
 
   methods: {
+    //点击关闭小图标清除图片
+    removeImg(index, e) {
+      e.stopPropagation();
+      this.body.options[index].img = "";
+    },
+
     // 图片
     handleAvatarSuccess(res, file) {
       this.body.options[this.imgIndex].img = URL.createObjectURL(file.raw);
@@ -615,6 +630,18 @@ export default {
   }
 }
 
+.el-radio {
+  height: 36px;
+  line-height: 36px;
+}
+
+::v-deep.check1 {
+  .el-checkbox__label {
+    margin-left: 4px;
+    font-size: 14px;
+  }
+}
+
 //图片上传区域样式
 ::v-deep .avatar-uploader .el-upload {
   display: inline-block;
@@ -624,7 +651,6 @@ export default {
   border-radius: 6px;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
 }
 .avatar-uploader {
   width: 100px;
@@ -649,5 +675,17 @@ export default {
 
 ::v-deep .ql-editor {
   height: 200px;
+}
+
+.el-icon-circle-close {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
 }
 </style>
