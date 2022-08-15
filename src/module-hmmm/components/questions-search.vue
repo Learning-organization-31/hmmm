@@ -266,6 +266,8 @@ export default {
         this.params[key] = "";
       }
       this.citys = [];
+      this.catalogList = []; //目录列表
+      this.tagsList = []; //标签列表
     },
   },
 

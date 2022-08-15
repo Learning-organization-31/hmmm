@@ -430,15 +430,20 @@ export default {
       if (this.imgFlag) {
         this.imgFlag = false;
         this.index = this.imgIndex;
-        const isJPG = file.type === "image/jpeg";
+        const isJPG = ["image/jpeg", "image/png", "image/gif"].includes(
+          file.type
+        );
+
         const isLt2M = file.size / 1024 / 1024 < 2;
 
         if (!isJPG) {
-          this.$message.error("上传图片只能是 JPG 格式!");
+          this.$message.error("上传图片只能是 JPG,png,gif 格式!");
+          this.imgFlag = true;
           return false;
         }
         if (!isLt2M) {
           this.$message.error("上传图片大小不能超过 2MB!");
+          this.imgFlag = true;
           return false;
         }
       } else {
@@ -546,95 +551,102 @@ export default {
 
     //确认按钮
     async fromSubmit() {
-      try {
-        await this.$refs.ruleForm.validate();
-        //进行答案校验
-        if (this.body.questionType === 1) {
-          if (this.radioCheckout === "") {
-            return this.$message.error("单选题未选择答案");
+      if (this.imgFlag) {
+        try {
+          await this.$refs.ruleForm.validate();
+          //进行答案校验
+          if (this.body.questionType === 1) {
+            if (this.radioCheckout === "") {
+              return this.$message.error("单选题未选择答案");
+            }
+          } else if (this.body.questionType === 2) {
+            if (!this.checkList[1]) {
+              return this.$message.error("多选题至少选择两个答案");
+            }
           }
-        } else if (this.body.questionType === 2) {
-          if (!this.checkList[1]) {
-            return this.$message.error("多选题至少选择两个答案");
-          }
-        }
-
-        const obj = { ...this.body };
-        obj.difficulty = String(obj.difficulty);
-        obj.questionType = String(obj.questionType);
-        obj.tags = obj.tags.join(",");
-        await add(obj);
-        this.$message.success("添加成功");
-        this.body = {
-          subjectID: "", //	学科
-          catalogID: "", //	目录
-          enterpriseID: "", //		企业
-          province: "", //城市
-          city: "", //地区
-          direction: "", //方向
-          questionType: 1, //题型
-          difficulty: 1, //难度
-          question: "", //题干
-          options: [
-            //选择
-            {
-              code: "A", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-            {
-              code: "B", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-            {
-              code: "C", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-            {
-              code: "D", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-          ],
-          videoURL: "", //解析视频
-          answer: "", //答案解析
-          remarks: "", //题目备注
-          tags: "", //试题标签
-        };
-        this.tagsList = [];
-        this.$refs.ruleForm.resetFields();
-      } catch (error) {}
+          const obj = { ...this.body };
+          obj.difficulty = String(obj.difficulty);
+          obj.questionType = String(obj.questionType);
+          obj.tags = obj.tags.join(",");
+          await add(obj);
+          this.$message.success("添加成功");
+          this.body = {
+            subjectID: "", //	学科
+            catalogID: "", //	目录
+            enterpriseID: "", //		企业
+            province: "", //城市
+            city: "", //地区
+            direction: "", //方向
+            questionType: 1, //题型
+            difficulty: 1, //难度
+            question: "", //题干
+            options: [
+              //选择
+              {
+                code: "A", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+              {
+                code: "B", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+              {
+                code: "C", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+              {
+                code: "D", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+            ],
+            videoURL: "", //解析视频
+            answer: "", //答案解析
+            remarks: "", //题目备注
+            tags: "", //试题标签
+          };
+          this.tagsList = [];
+          this.$refs.ruleForm.resetFields();
+        } catch (error) {}
+      } else {
+        this.$message.error("有图片正在提交,暂时无法提交");
+      }
     },
 
     //修改按钮
     async setFromSubmit() {
-      try {
-        await this.$refs.ruleForm.validate();
-        //进行答案校验
-        if (this.body.questionType === 1) {
-          if (this.radioCheckout === "") {
-            return this.$message.error("单选题未选择答案");
+      if (this.imgFlag) {
+        try {
+          await this.$refs.ruleForm.validate();
+          //进行答案校验
+          if (this.body.questionType === 1) {
+            if (this.radioCheckout === "") {
+              return this.$message.error("单选题未选择答案");
+            }
+          } else if (this.body.questionType === 2) {
+            if (!this.checkList[1]) {
+              return this.$message.error("多选题至少选择两个答案");
+            }
           }
-        } else if (this.body.questionType === 2) {
-          if (!this.checkList[1]) {
-            return this.$message.error("多选题至少选择两个答案");
-          }
-        }
 
-        const obj = { ...this.body };
-        obj.difficulty = String(obj.difficulty);
-        obj.questionType = String(obj.questionType);
-        obj.tags = obj.tags.join(",");
-        await update(obj);
-        this.$message.success("修改成功");
-        this.$router.push("/questions/list");
-      } catch (error) {}
+          const obj = { ...this.body };
+          obj.difficulty = String(obj.difficulty);
+          obj.questionType = String(obj.questionType);
+          obj.tags = obj.tags.join(",");
+          await update(obj);
+          this.$message.success("修改成功");
+          this.$router.push("/questions/list");
+        } catch (error) {}
+      } else {
+        this.$message.error("目前有图片正在提交,暂时无法修改");
+      }
     },
   },
 
