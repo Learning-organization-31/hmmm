@@ -118,22 +118,26 @@
               plain
               @click="edit(row.id)"
             ></el-button>
-            <el-button
-              type="warning"
-              icon="el-icon-close"
-              circle
-              plain
-              v-if="row.state == 0"
-              @click="state(row)"
-            ></el-button>
-            <el-button
-              type="success"
-              icon="el-icon-check"
-              circle
-              plain
-              v-if="row.state == 1"
-              @click="state(row)"
-            ></el-button>
+            <el-tooltip effect="dark" content="禁用" placement="top">
+              <el-button
+                type="warning"
+                icon="el-icon-close"
+                circle
+                plain
+                v-if="row.state == 0"
+                @click="state(row)"
+              ></el-button>
+            </el-tooltip>
+            <el-tooltip effect="dark" content="启用" placement="top">
+              <el-button
+                type="success"
+                icon="el-icon-check"
+                circle
+                plain
+                v-if="row.state == 1"
+                @click="state(row)"
+              ></el-button>
+            </el-tooltip>
             <el-button
               type="danger"
               icon="el-icon-delete"
