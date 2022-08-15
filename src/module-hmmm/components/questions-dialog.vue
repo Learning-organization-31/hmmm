@@ -63,7 +63,7 @@
       <hr />
       <div class="answer">
         <div>【参考答案】：</div>
-        <el-button type="danger" size="small" @click="videoIsShow = true">
+        <el-button type="danger" size="small" @click="videoIsShowFn">
           视频答案预览
         </el-button>
       </div>
@@ -109,6 +109,13 @@ export default {
   created() {},
 
   methods: {
+    //判断页面是否需要弹出视频
+    videoIsShowFn() {
+      if (this.detailInfo.videoURL)
+        return this.$message.info("该题目暂无视频答案");
+      this.videoIsShow = true;
+    },
+
     //打开弹窗触发,获取数据
     async open() {
       const { data } = await detail({ id: this.id });
