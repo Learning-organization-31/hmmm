@@ -30,3 +30,7 @@ export const remove = data =>
 
 // 目录状态
 export const changeState = data => createAPI(`/directorys/${data.id}/${data.state}`, 'post', data)
+
+//删除
+export const deleteDirectory = id =>
+  createAPI(`/directorys/${id}`, 'delete')

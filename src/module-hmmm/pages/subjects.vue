@@ -4,14 +4,15 @@
       <Search
         leftTitle="学科名称"
         @SearchClear="SearchClear"
-        @SearchContent="SearchContent"
+        @SearchContent="SearchFn"
+        ref="formTable"
       ></Search>
       <addButton @parentMethod="refreshPage"></addButton>
       <el-tag type="info">
         <i class="el-icon-info"></i>
         数据一共 {{ infoCount }} 条</el-tag
       >
-      <el-table style="width: 100%" :data="subjectList">
+      <el-table style="width: 100%" :data="subjectListInfo">
         <el-table-column
           prop="date"
           label="序号"
@@ -23,7 +24,7 @@
         <el-table-column prop="subjectName" label="学科名称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
         <el-table-column label="创建日期">
-          <template slot-scope="row">
+          <template slot-scope="{ row }">
             {{ row.addDate | formateTime }}
           </template>
         </el-table-column>
@@ -35,10 +36,18 @@
         <el-table-column prop="totals" label="题目数量"> </el-table-column>
         <el-table-column prop="address" label="操作" width="210">
           <template slot-scope="{ row }">
-            <el-button @click="handleClick(scope.row)" type="text" size="small"
+            <el-button
+              @click="handleClick(row.id, row.subjectName)"
+              type="text"
+              size="small"
               >学科分类</el-button
             >
-            <el-button type="text" size="small">学科标签</el-button>
+            <el-button
+              type="text"
+              size="small"
+              @click="handTag(row.id, row.subjectName)"
+              >学科标签</el-button
+            >
             <el-button type="text" size="small" @click="editFn(row.id)"
               >修改</el-button
             >
@@ -48,29 +57,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog title="修改学科" :visible.sync="dialogVisible" width="20%">
-        <el-form :model="form">
-          <el-form-item
-            label="学科名称"
-            :label-width="formLabelWidth"
-            prop="subjectName"
-          >
-            <el-input v-model="form.subjectName" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="是否显示" prop="isFrontDisplay">
-            <el-switch
-              v-model="form.isFrontDisplay"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-            >
-            </el-switch>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary">确 定</el-button>
-        </span>
-      </el-dialog>
+
       <el-pagination
         background
         layout="prev, pager, next,sizes,jumper"
@@ -82,6 +69,34 @@
         @size-change="handleSizeChange"
       >
       </el-pagination>
+      <el-dialog title="修改学科" :visible.sync="dialogVisible" width="25%">
+        <el-form :model="form">
+          <el-form-item
+            label="学科名称"
+            :label-width="formLabelWidth"
+            prop="subjectName"
+          >
+            <el-input
+              v-model="subjectInfo.subjectName"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="是否显示" prop="isFrontDisplay">
+            <el-switch
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              :value="subjectInfo.isFrontDisplay === 1"
+            >
+            </el-switch>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <!-- <template slot-scope="{ row }"> -->
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="saveBtn">确 定</el-button>
+          <!-- </template> -->
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -89,42 +104,80 @@
 <script>
 import Search from "../components/search.vue";
 import addButton from "./addButton.vue";
-import { detail, list, remove, update } from "../../api/hmmm/subjects";
+import editInfo from "./components/editInfo.vue";
+import {
+  detail,
+  list,
+  remove,
+  update,
+  simple,
+  deleteInfo,
+  subjectInfo,
+} from "../../api/hmmm/subjects";
+import { mapActions, mapState } from "vuex";
 export default {
   components: {
     Search,
     addButton,
+    editInfo,
   },
   data() {
     return {
-      subjectList: [],
+      subjectListInfo: [],
       infoCount: 0, //tag标签数量
       pages: {
         page: 1,
         pagesize: 10,
       },
       dialogVisible: false,
-      formLabelWidth: "60px",
+
+      formList: {
+        id: "",
+        addDate: "",
+        creatorID: 0,
+        isFrontDisplay: 0,
+        subjectName: "",
+        tags: 0,
+        totals: 0,
+        twoLevelDirectory: 0,
+      },
+
+      pageinfo: {
+        subjectName: "",
+        page: 1,
+        pagesize: 10,
+      },
+      subjectInfo: {}, //学科信息
+      dialogVisible: false,
       form: {
         subjectName: "",
         isFrontDisplay: 1,
       },
-      val: "",
+      formLabelWidth: "60px",
     };
   },
   created() {
     this.getSubject();
-    this.editFn();
+  },
+  computed: {
+    ...mapState("subject", ["subjectList"]),
   },
   methods: {
-    //点击清空按钮，输入框内容清空
-    SearchClear(content, status) {
-      content: "";
-      status: "";
+    ...mapActions("subject", ["setSubjectList"]),
+
+    async getInfoList(payload) {
+      const { data } = await list({
+        subjectName: this.pageinfo.subjectName,
+        page: this.pageinfo.page,
+        pagesize: this.pageinfo.pagesize,
+      });
+      data.items.forEach((item, index) => {
+        this.subjectName = item.subjectName;
+        console.log(this.subjectName);
+      });
     },
-    //点击搜索，出现对应内容
-    SearchContent() {},
-    async getSubject() {
+    async getSubject(payload) {
+      await this.setSubjectList(payload);
       const { data } = await list({
         page: this.pages.page,
         pagesize: this.pages.pagesize,
@@ -132,22 +185,49 @@ export default {
       //获取标签数量
       this.infoCount = data.counts;
       //拿到table表格数据，然后将其进行渲染
-      this.subjectList = data.items;
-      console.log(this.subjectList);
+      this.subjectListInfo = data.items;
+      this.subjectListInfo.forEach((item, index) => {
+        if (item.isFrontDisplay === 1) {
+          this.subjectListInfo[index].isFrontDisplay = "是";
+        } else {
+          this.subjectListInfo[index].isFrontDisplay = "否";
+        }
+      });
+    },
+    //点击清空按钮，输入框内容清空
+    SearchClear() {
+      this.$refs.formTable.content = "";
+    },
+    //点击搜索，出现对应内容
+    SearchFn(value) {
+      this.setSubjectList({ subjectName: value, page: 1, pagesize: 10 });
     },
     indexMethod(index) {
       return index + 1;
     },
-    handleClick() {},
+    //点击，实现路由跳转
+    handleClick(id, name) {
+      this.$router.push({
+        path: "directorys",
+        query: { id: id, name: name },
+      });
+    },
+    //点击学科标签，实现路由跳转
+    handTag(id, name) {
+      this.$router.push({
+        path: "tags",
+        query: { id: id, name: name },
+      });
+    },
     // 点击分页改变
     currentChange(val) {
       this.pages.page = val;
       this.getSubject();
     },
-    //
-    handleSizeChange(val, it) {
+    //修改数字，显示每一页
+    handleSizeChange(val) {
       this.pages.page = val;
-      this.pages.pagesize = it;
+      this.pages.pagesize = val;
       this.getSubject();
     },
     //添加后，重新更新页面
@@ -156,19 +236,28 @@ export default {
     },
     //删除数据
     async delFn(id) {
-      console.log(id);
       await this.$confirm("您确定删除该数据吗？");
-      await remove(id);
+      await deleteInfo(id);
       this.$message.success("删除成功");
       this.getSubject();
     },
-    //修改信息
+    //打开修改信息弹层
     async editFn(id) {
-      const res = await detail(id);
-      console.log(res);
+      const { data } = await subjectInfo(id);
+      console.log(data);
+      this.subjectInfo = data;
       this.dialogVisible = true;
-      // const res = await update(id);
-      // console.log(res);
+    },
+    //修改信息
+    async saveBtn() {
+      await update({
+        id: this.subjectInfo.id,
+        subjectName: this.subjectInfo.subjectName,
+        isFrontDisplay: this.subjectInfo.isFrontDisplay,
+      });
+      this.$message.success("修改成功");
+      this.getSubject();
+      this.dialogVisible = false;
     },
   },
 };

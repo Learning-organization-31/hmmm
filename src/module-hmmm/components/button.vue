@@ -1,9 +1,9 @@
 <template>
   <div>
-    <el-button class="clear" @clickClear="clickClear" :disabled="disabled"
+    <el-button class="clear" @click="clickClear" :disabled="disabled"
       >清除</el-button
     >
-    <el-button type="primary" @clickSearch="clickSearch" :disabled="disabled"
+    <el-button type="primary" @click="clickSearch" :disabled="disabled"
       >搜索</el-button
     >
   </div>

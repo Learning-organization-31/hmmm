@@ -5,24 +5,34 @@
       class="addSubject"
       icon="el-icon-edit"
       @click="addFn"
-      >新增学科</el-button
+      >新增目录</el-button
     >
-    <el-dialog title="新增学科" :visible.sync="dialogVisible" width="20%">
+    <el-dialog title="新增目录" :visible.sync="dialogVisible" width="25%">
       <el-form :model="form" :rules="formRules" ref="form">
         <el-form-item
-          label="学科名称"
+          label="所属学科"
           :label-width="formLabelWidth"
-          prop="subjectName"
+          prop="subjectID"
         >
-          <el-input v-model="form.subjectName" autocomplete="off"></el-input>
+          <el-select v-model="value" placeholder="请选择">
+            <el-option
+              v-for="item in subjectList"
+              :key="item.id"
+              :label="item.subjectName"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="是否显示" prop="isFrontDisplay">
-          <el-switch
-            v-model="form.isFrontDisplay"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-          >
-          </el-switch>
+        <el-form-item
+          label="目录名称"
+          :label-width="formLabelWidth"
+          prop="directoryName"
+        >
+          <el-input
+            v-model="form.directoryName"
+            autocomplete="off"
+            placeholder="请输入目录名称"
+          ></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -34,14 +44,15 @@
 </template>
 
 <script>
-import { add } from "../../api/hmmm/subjects";
+import { mapActions, mapState } from "vuex";
+import { add } from "../../../api/hmmm/directorys";
 export default {
   data() {
     return {
       dialogVisible: false,
       form: {
-        subjectName: "",
-        isFrontDisplay: 1,
+        subjectID: 1,
+        directoryName: "",
       },
       formLabelWidth: "60px",
       //表单校验
@@ -49,7 +60,7 @@ export default {
         subjectName: [
           {
             required: true,
-            message: "请输入学科名称",
+            message: "请选择所属学科",
             trigger: "blur",
           },
         ],
@@ -61,12 +72,14 @@ export default {
           },
         ],
       },
+      value: "",
     };
   },
 
   created() {},
 
   methods: {
+    ...mapActions("subject", ["setSubjectList"]),
     addFn() {
       this.dialogVisible = true;
     },
@@ -75,18 +88,15 @@ export default {
       this.dialogVisible = false;
       this.$refs.form.resetFields();
     },
-    //点击按钮新增
     async saveBtn() {
-      //点击新增，如果内容为空，进行表单校验
-      this.$refs.form.validate();
-      await add({
-        subjectName: this.form.subjectName,
-        isFrontDisplay: this.form.isFrontDisplay,
-      });
+      await add(this.form);
       this.$message.success("添加成功");
-      this.$emit("parentMethod");
-      this.close();
+      this.close(); //添加成功，关闭弹层
+      this.$emit("getDirective");
     },
+  },
+  computed: {
+    ...mapState("subject", ["subjectList"]),
   },
 };
 </script>
@@ -123,5 +133,8 @@ export default {
   position: absolute;
   top: 100%;
   left: 30px;
+}
+::v-deep .el-select {
+  margin-left: 10px;
 }
 </style>

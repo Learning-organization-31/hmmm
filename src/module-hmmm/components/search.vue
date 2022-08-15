@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form ref="form" label-width="80px" :inline="true">
+    <el-form label-width="80px" :inline="true">
       <el-form-item :label="leftTitle">
         <el-input ref="leftTitle" v-model="content"></el-input>
       </el-form-item>
@@ -16,10 +16,9 @@
       </el-form-item>
       <el-form-item>
         <MyButton
-          @clickClear="clearSearch"
           @clickSearch="clickSearch"
+          @clickClear="clearSearch"
         ></MyButton>
-        <!-- <MyButton @clickSearch="clickSearch">搜索</MyButton> -->
       </el-form-item>
     </el-form>
   </div>
