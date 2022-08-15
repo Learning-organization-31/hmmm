@@ -69,12 +69,16 @@ export default {
 
     //搜索时间触发,可以获取所有搜索数据
     searchFn(params) {
-      this.SET_DATA_PAGE(1);
-      this.getChoiceInfo(params);
+      this.SET_PARAMS(params);
+      this.getChoiceInfo(this.data);
     },
 
     ...mapActions("questionsChoice", ["getChoiceInfo"]),
-    ...mapMutations("questionsChoice", ["SET_DATA_CHK_STATE", "SET_DATA_PAGE"]),
+    ...mapMutations("questionsChoice", [
+      "SET_DATA_CHK_STATE",
+      "SET_PARAMS",
+      "SET_DATA_PAGE",
+    ]),
   },
 
   computed: {

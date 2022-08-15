@@ -91,7 +91,6 @@ export default {
   methods: {
     //打开弹窗
     dialogIsShow({ id }) {
-      console.log(id);
       this.detailId = id;
       this.IsShow = true;
     },
@@ -155,12 +154,12 @@ export default {
 
     //格式化提醒
     formatType(row, column, cellValue) {
-      return questionType.find((item) => item.value == cellValue).label;
+      return questionType.find((item) => item.value == cellValue)?.label;
     },
 
     //格式化难度
     formatDiff(row, column, cellValue) {
-      return difficulty.find((item) => item.value == cellValue).label;
+      return difficulty.find((item) => item.value == cellValue)?.label;
     },
 
     ...mapActions("questionsList", ["getBaseList"]),

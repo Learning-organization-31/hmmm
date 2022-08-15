@@ -412,7 +412,6 @@ export default {
       data.tags = data.tags.split(",");
       this.body = data;
       //下方用于判断正确答案
-      console.log(this.body);
       if (this.body.questionType === 1) {
         // console.log("单选");
         this.radioCheckout = this.body.options.find((item) => {
@@ -587,7 +586,7 @@ export default {
         obj.tags = obj.tags.join(",");
         await update(obj);
         this.$message.success("修改成功");
-        this.$push("/questions/list");
+        this.$router.push("/questions/list");
       } catch (error) {}
     },
   },
