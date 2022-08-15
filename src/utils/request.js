@@ -88,6 +88,7 @@ export const createFormAPI = (url, method, data) => {
     "Content-Type": "application/x-www-form-urlencoded",
   };
   config.responseType = "json";
+
   config.transformRequest = [
     function (data) {
       let ret = "";
@@ -95,9 +96,11 @@ export const createFormAPI = (url, method, data) => {
         ret +=
           encodeURIComponent(it) + "=" + encodeURIComponent(data[it]) + "&";
       }
+
       return ret;
     },
   ];
+
   return instance({
     url,
     method,
