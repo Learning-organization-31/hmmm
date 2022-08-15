@@ -1,27 +1,17 @@
 <template>
-  <div>
-    菜单管理
-  </div>
+  <div>菜单管理</div>
 </template>
 
 <script>
 export default {
-  data () {
-    return {
-
-    }
+  data() {
+    return {};
   },
 
-  created () {
+  created() {},
 
-  },
-
-  methods: {
-
-  }
-}
+  methods: {},
+};
 </script>
 
-<style scoped lang='less'>
-
-</style>
+<style scoped lang="less"></style>

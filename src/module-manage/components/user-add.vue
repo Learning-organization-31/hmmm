@@ -1,15 +1,19 @@
 <template>
   <div class="add-form">
-    <el-dialog :title="text+pageTitle" :visible.sync="dialogFormVisible">
+    <el-dialog
+      @close="onClose"
+      :title="text + pageTitle"
+      :visible.sync="dialogFormVisible"
+      :destroy-on-close="true"
+    >
       <el-form
         :rules="ruleInline"
         ref="dataForm"
         :model="formBase"
         label-position="left"
         label-width="120px"
-        style="width: 400px; margin-left:120px;"
+        style="width: 400px; margin-left: 120px"
       >
-
         <el-form-item :label="$t('table.username')" prop="username">
           <el-input v-model="formBase.username"></el-input>
         </el-form-item>
@@ -19,7 +23,7 @@
         <el-form-item
           :label="$t('table.paddword')"
           prop="password"
-          v-if="formBase.password!=undefined"
+          v-if="!formBase.id"
         >
           <el-input v-model="formBase.password"></el-input>
         </el-form-item>
@@ -29,7 +33,10 @@
           <el-input v-model="formBase.role"></el-input>
         </el-form-item>
         <!-- 权限组 -->
-        <el-form-item :label="$t('table.permissionUser')" prop="permission_group_id">
+        <el-form-item
+          :label="$t('table.permissionUser')"
+          prop="permission_group_id"
+        >
           <el-select class="filter-item" v-model="formBase.permission_group_id">
             <el-option
               v-for="item in PermissionGroupsList"
@@ -56,87 +63,96 @@
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
             </el-upload>
         </el-form-item>-->
-        <el-form-item :label="$t('table.introduction')">
+        <el-form-item :label="$t('table.introduction')" prop="introduction">
           <el-input
             type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
+            :autosize="{ minRows: 2, maxRows: 4 }"
             placeholder="Please input"
             v-model="formBase.introduction"
           ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
+        <el-button @click="onClose">{{ $t("table.cancel") }}</el-button>
+        <el-button type="primary" @click="createData">{{
+          $t("table.confirm")
+        }}</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { detail, update, add } from '@/api/base/users'
+import { detail, update, add } from "@/api/base/users";
 export default {
-  name: 'usersAdd',
+  name: "usersAdd",
   props: [
-    'text',
-    'pageTitle',
-    'PermissionGroupsList',
-    'formBase',
-    'ruleInline'
+    "text",
+    "pageTitle",
+    "PermissionGroupsList",
+    "formBase",
+    "ruleInline",
   ],
-  data () {
+  data() {
     return {
-      dialogFormVisible: false
+      dialogFormVisible: false,
       // fileList: [],
       // importFileUrl: 'https://jsonplaceholder.typicode.com/posts/',
-    }
+    };
   },
   computed: {},
   methods: {
     // 弹层显示
-    dialogFormV () {
-      this.dialogFormVisible = true
-    },
-    // 弹层隐藏
-    dialogFormH () {
-      this.dialogFormVisible = false
-    },
-    // 退出
-    handleClose () {
-      this.$emit('handleCloseModal')
+    dialogFormV() {
+      this.dialogFormVisible = true;
     },
 
+    // 关闭模态框
+    onClose() {
+      this.dialogFormVisible = false;
+      this.$refs.dataForm.resetFields();
+      this.$emit("OnClose");
+    },
     // 表单提交
-    createData () {
-      this.$refs.dataForm.validate(valid => {
+    createData() {
+      this.$refs.dataForm.validate(async (valid) => {
         if (valid) {
-          this.$emit('handleCloseModal')
           const data = {
-            ...this.formBase
-          }
+            ...this.formBase,
+          };
           if (this.formBase.id) {
-            update(data).then(() => {
-              this.$emit('newDataes', this.formBase)
-            })
+            try {
+              await update(data);
+              this.$emit("newDataes", this.formBase);
+              this.$message.success("更新成功");
+              this.onClose();
+            } catch (error) {
+              // this.$message.error("更新失败");
+            }
           } else {
-            add(this.formBase).then(() => {
-              this.$emit('newDataes', this.formBase)
-            })
+            try {
+              await add(this.formBase);
+              this.$emit("newDataes", this.formBase);
+              this.$message.success("添加成功");
+              this.onClose();
+            } catch (error) {
+              // this.$message.error("添加失败");
+            }
           }
         } else {
-          this.$Message.error('*号为必填项!')
+          this.$Message.error("*号为必填项!");
         }
-      })
-    }
+      });
+    },
   },
   // 挂载结束
 
   mounted: function () {},
   // 创建完毕状态
-  created () {},
+  created() {},
   // 组件更新
-  updated: function () {}
-}
+  updated: function () {},
+};
 </script>
 <style>
 .el-form--label-left .el-form-item__label {
@@ -146,6 +162,6 @@ export default {
   margin-bottom: 22px;
 }
 .el-dialog__footer {
-  text-align: center
+  text-align: center;
 }
 </style>

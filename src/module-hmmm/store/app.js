@@ -7,7 +7,7 @@
  */
 // import companys from './companys'
 
-const app = {
+export default {
   state: {
     name: '',
   },
@@ -25,9 +25,4 @@ const app = {
       })
     },
   },
-  // modules: {
-  //   companys,
-  // },
 }
-
-export default app
