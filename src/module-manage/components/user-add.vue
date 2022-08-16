@@ -131,7 +131,6 @@ export default {
             }
           } else {
             try {
-              console.log("1233");
               await add(this.formBase);
               console.log(this.formBase);
               this.$emit("newDataes", this.formBase);

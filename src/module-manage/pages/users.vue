@@ -118,6 +118,7 @@ export default {
         phone: "",
         introduction: "",
         avatar: "",
+        sex: "",
       },
       ruleInline: {
         username: [
@@ -126,6 +127,9 @@ export default {
         email: [{ required: true, message: "邮箱不能为空", trigger: "blur" }],
         password: [
           { required: true, message: "密码不能为空", trigger: "blur" },
+        ],
+        permission_group_id: [
+          { required: true, message: "请选择权限组", trigger: "change" },
         ],
       },
       userAddText: "",
@@ -181,6 +185,8 @@ export default {
         permission_group_id: "",
         phone: "",
         introduction: "",
+        avatar: "",
+        sex: "",
       };
     },
 
