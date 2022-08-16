@@ -32,3 +32,6 @@ export const changeState = data => createAPI(`/tags/${data.id}/${data.state}`, '
 //删除
 export const delTag = id => createAPI(`/tags/${id}`, 'delete')
 
+//标签详情
+export const tagInfo = id => createAPI(`/tags/${id}`, 'get')
+

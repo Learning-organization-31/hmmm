@@ -1,15 +1,27 @@
 <template>
   <div class="container">
     <el-card class="box-card">
+      <el-breadcrumb separator=">" v-if="$route?.query?.row?.id">
+        <el-breadcrumb-item :to="{ path: '/subjects/list' }"
+          ><span class="manger"> 学科管理 </span></el-breadcrumb-item
+        >
+        <el-breadcrumb-item>{{
+          $route.query.row.subjectName
+        }}</el-breadcrumb-item>
+        <el-breadcrumb-item>目录</el-breadcrumb-item>
+      </el-breadcrumb>
       <Search
         leftTitle="目录名称"
         rightTitle="状态"
         @SearchClear="SearchClear"
         @SearchContent="SearchFn"
         :typeList="typeList"
-        ref="formData"
+        ref="form"
       ></Search>
-      <addDirective @getDirective="getInfo"></addDirective>
+      <addDirective
+        @getDirective="getInfo"
+        :directiveList="directiveList"
+      ></addDirective>
       <el-tag type="info">
         <i class="el-icon-info"></i>
         数据一共 {{ totalCount }} 条</el-tag
@@ -34,46 +46,55 @@
         </el-table-column>
 
         <el-table-column prop="totals" label="面试题数量"> </el-table-column>
-        <el-table-column prop="state" label="状态"> </el-table-column>
+        <el-table-column prop="state" label="状态">
+          <template slot-scope="{ row }">
+            {{ row.state === 0 ? "已禁用" : "已启用" }}
+          </template>
+        </el-table-column>
         <el-table-column prop="address" label="操作" width="210">
           <template slot-scope="{ row }">
+            <el-button type="text" @click="editBtn(row)">{{
+              row.state === 0 ? "启用" : "禁用"
+            }}</el-button>
             <el-button
               type="text"
-              size="small"
-              :disabled="disabled"
-              @click="editBtn"
-              >禁用</el-button
-            >
-            <el-button type="text" size="small" @click="editInfo(row.id)"
+              @click="editInfo(row.id)"
+              :disabled="row.state === 1"
               >修改</el-button
             >
-            <el-button type="text" size="small" @click="delFn(row.id)"
+            <el-button
+              type="text"
+              @click="delFn(row.id)"
+              :disabled="row.state === 1"
               >删除</el-button
             >
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog title="修改目录" :visible.sync="dialogVisible" width="25%">
+      <el-dialog title="修改目录" :visible.sync="dialogVisible" width="23%">
         <el-form :model="form">
           <el-form-item label="所属学科" prop="subjectID">
-            <el-select v-model="value" class="selected">
+            <el-select v-model="detailInfo.subjectID" class="selected">
               <el-option
                 v-for="item in directiveList"
                 :key="item.id"
                 :label="item.subjectName"
-                :value="item.value"
+                :value="item.subjectID"
               >
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="目录名称" prop="isFrontDisplay">
-            <el-input autocomplete="off" class="inputdir"></el-input>
+          <el-form-item label="目录名称">
+            <el-input
+              class="inputdir"
+              v-model="detailInfo.directoryName"
+            ></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <!-- <template slot-scope="row"> -->
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editInfo">确 定</el-button>
+          <el-button type="primary" @click="saveBtn">确 定</el-button>
           <!-- </template> -->
         </span>
       </el-dialog>
@@ -94,15 +115,20 @@
 
 <script>
 import Search from "../components/search.vue";
-import Dialogy from "./components/dialogyDirective.vue";
 import addDirective from "./components/addDirective.vue";
-import { list, deleteDirectory, changeState } from "../../api/hmmm/directorys";
+import {
+  directoryList,
+  deleteDirectory,
+  detailInfo,
+  update,
+  changeState,
+  list,
+} from "../../api/hmmm/directorys";
 import { mapActions, mapState } from "vuex";
 export default {
   components: {
     Search, //注册搜索页面
     addDirective, //注册新增组件
-    Dialogy,
   },
   data() {
     return {
@@ -112,86 +138,135 @@ export default {
       pages: {
         page: 1,
         pagesize: 10,
+        directoryName: "",
+        state: null,
+        subjectID: null,
       },
       totalCount: 0, //tag上面的数据内容
       subjectName: [], //学科名
-      disabled: false, //控制按钮是否可以点击
+
       typeList: [], //搜索框状态
       dialogVisible: false,
       form: {},
       value: "",
+      detailInfo: {},
+      states: false,
     };
   },
   //页面一加载，就需要获取到数据，然后渲染table
   created() {
-    this.getDirectiveList();
+    this.pages.subjectID = this.$route?.query?.row?.id;
+    this.getDirective();
+    console.log(this.$route?.query?.row);
   },
+  // watch: {
+  //   "pages.subjectID"(val) {
+  //     if (val === undefined) {
+  //       this.states = false;
+  //     } else {
+  //       this.states = true;
+  //     }
+  //   },
+  // },
   methods: {
     indexMethod(index) {
       return index + 1;
     },
     ...mapActions("subject", ["setSubjectList"]),
-    ...mapActions("subject", ["setState"]),
+    ...mapActions("subject", ["setDirectoryList"]),
     //发送请求，获取到数据，然后渲染页面
-    async getDirectiveList(payload) {
-      const { data } = await list({
-        page: this.pages.page,
-        pagesize: this.pages.pagesize,
-      });
+    async getDirective(payload) {
+      //调用vuex里面的方法
+      await this.setSubjectList(payload);
+      await this.setDirectoryList(payload);
+      // const { data } = await directoryList({
+      //   page: this.pages.page,
+      //   pagesize: this.pages.pagesize,
+      // });
+      const { data } = await list(this.pages);
       this.totalCount = data.counts;
       this.directiveList = data.items;
       //通过foreach遍历，然后修改状态
-      this.directiveList.forEach((item, index) => {
-        if (item.state === 1) {
-          this.directiveList[index].state = "已启用";
-        } else {
-          this.directiveList[index].state = "已禁用";
-        }
-      });
-      // const res = await changeState();
-      // console.log(res);
-      //调用vuex里面的方法
-      await this.setSubjectList(payload);
-      await this.setState(payload);
+      // this.directiveList.forEach((item, index) => {
+      //   if (item.state === 1) {
+      //     this.directiveList[index].state = "已启用";
+      //   } else {
+      //     this.directiveList[index].state = "已禁用";
+      //   }
+      // });
+      this.typeList = [
+        { id: 1, statusName: "已启用" },
+        { id: 0, statusName: "已禁用" },
+      ];
     },
     //点击清除按钮，搜索框内容清空
     SearchClear() {
-      this.$refs.formData.content = "";
+      this.$refs.form.content = "";
     },
     //搜索框搜索
-    SearchFn() {},
+    SearchFn(value) {
+      this.pages.directoryName = value[0];
+      if (value[1] !== "") {
+        this.pages.state = value[1];
+      } else {
+        this.pages.state = null;
+      }
+      console.log(this.pages);
+      this.getDirective();
+    },
     //修改分页
     currentChange(val) {
       this.pages.page = val;
-      this.getDirectiveList();
+      this.getDirective();
     },
     //修改分页，点击数字实现页面条数
     handleSizeChange(val) {
-      this.pages.page = val;
-      this.pages.pagesize = val;
-      this.getSubject();
+      this.pages.pagesize = +val;
+      this.getDirective();
     },
     //删除信息
     async delFn(id) {
       await this.$confirm("您确定删除该数据吗？");
       await deleteDirectory(id);
       this.$message.success("删除成功");
-      this.getDirectiveList();
+      this.getDirective();
     },
     //子组件点击新增，重新渲染页面，帮子页面获取到父组件方法
     getInfo() {
       //给子组件调用页面已进入方法
-      this.getDirectiveList();
+      this.getDirective();
     },
     //修改按钮，点击禁用，按钮不可点击，点击启用，按钮可以点击
-    editBtn() {},
-    editInfo(id) {
+    async editBtn(row) {
+      if (row.state === 0) {
+        row.state = 1;
+      } else if (row.state === 1) {
+        row.state = 0;
+      }
+      await changeState(row);
+      this.$message.success("状态修改成功");
+    },
+    //点击修改按钮，显示弹框
+    async editInfo(id) {
+      const { data } = await detailInfo(id);
+      this.detailInfo = data;
       this.dialogVisible = true;
+    },
+    //点击确认，更改信息
+    async saveBtn() {
+      await update({
+        id: this.detailInfo.id,
+        subjectID: this.detailInfo.subjectID,
+        directoryName: this.detailInfo.directoryName,
+      });
+      this.$message.success("修改成功");
+      this.dialogVisible = false;
+      this.getDirective();
     },
   },
   computed: {
     ...mapState("subject", ["subjectList"]),
-    // ...mapState("subject", ["dirstate"]),
+    ...mapState("subject", ["directoryList"]),
   },
 };
 </script>
@@ -220,6 +295,12 @@ export default {
   }
   .selected {
     width: 75%;
+  }
+  .el-breadcrumb {
+    margin-bottom: 10px;
+  }
+  .manger {
+    color: #333;
   }
 }
 </style>

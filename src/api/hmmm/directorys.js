@@ -10,6 +10,7 @@
 import { createAPI } from '@/utils/request'
 
 // 目录列表
+export const directoryList = data => createAPI('/directorys', 'get', data)
 export const list = data => createAPI('/directorys', 'get', data)
 
 // 目录简单列表
@@ -34,3 +35,8 @@ export const changeState = data => createAPI(`/directorys/${data.id}/${data.stat
 //删除
 export const deleteDirectory = id =>
   createAPI(`/directorys/${id}`, 'delete')
+
+  //目录详情
+export const detailInfo = id => createAPI(`/directorys/${id}`, 'get')
+
+

@@ -5,6 +5,7 @@
         leftTitle="学科名称"
         @SearchClear="SearchClear"
         @SearchContent="SearchFn"
+        :content="content"
         ref="formTable"
       ></Search>
       <addButton @parentMethod="refreshPage"></addButton>
@@ -35,17 +36,11 @@
         <el-table-column prop="tags" label="标签"> </el-table-column>
         <el-table-column prop="totals" label="题目数量"> </el-table-column>
         <el-table-column prop="address" label="操作" width="210">
-          <template slot-scope="{ row }">
-            <el-button
-              @click="handleClick(row.id, row.subjectName)"
-              type="text"
-              size="small"
+          <template v-slot:default="row">
+            <el-button @click="handleClick(row)" type="text" size="small"
               >学科分类</el-button
             >
-            <el-button
-              type="text"
-              size="small"
-              @click="handTag(row.id, row.subjectName)"
+            <el-button type="text" size="small" @click="handTag(row)"
               >学科标签</el-button
             >
             <el-button type="text" size="small" @click="editFn(row.id)"
@@ -85,7 +80,8 @@
             <el-switch
               active-color="#13ce66"
               inactive-color="#ff4949"
-              :value="subjectInfo.isFrontDisplay === 1"
+              :value="subjectInfo.isFrontDisplay"
+              v-model="subjectInfo.isFrontDisplay"
             >
             </el-switch>
           </el-form-item>
@@ -104,7 +100,7 @@
 <script>
 import Search from "../components/search.vue";
 import addButton from "./addButton.vue";
-import editInfo from "./components/editInfo.vue";
+
 import {
   detail,
   list,
@@ -114,15 +110,15 @@ import {
   deleteInfo,
   subjectInfo,
 } from "../../api/hmmm/subjects";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 export default {
   components: {
     Search,
     addButton,
-    editInfo,
   },
   data() {
     return {
+      content: "",
       subjectListInfo: [],
       infoCount: 0, //tag标签数量
       pages: {
@@ -154,34 +150,30 @@ export default {
         isFrontDisplay: 1,
       },
       formLabelWidth: "60px",
+      value: "",
+      subjectSearch: "",
     };
   },
   created() {
     this.getSubject();
+    this.getInfoList();
   },
   computed: {
     ...mapState("subject", ["subjectList"]),
   },
   methods: {
     ...mapActions("subject", ["setSubjectList"]),
-
+    ...mapMutations("subject", ["getSubjectList"]),
     async getInfoList(payload) {
-      const { data } = await list({
-        subjectName: this.pageinfo.subjectName,
-        page: this.pageinfo.page,
-        pagesize: this.pageinfo.pagesize,
-      });
-      data.items.forEach((item, index) => {
-        this.subjectName = item.subjectName;
-        console.log(this.subjectName);
-      });
-    },
-    async getSubject(payload) {
       await this.setSubjectList(payload);
-      const { data } = await list({
-        page: this.pages.page,
-        pagesize: this.pages.pagesize,
-      });
+    },
+    async getSubject() {
+      // const { data } = await list({
+      //   subjectName: this.subjectSearch,
+      //   page: this.pages.page,
+      //   pagesize: this.pages.pagesize,
+      // });
+      const { data } = await list(this.pageinfo);
       //获取标签数量
       this.infoCount = data.counts;
       //拿到table表格数据，然后将其进行渲染
@@ -193,41 +185,42 @@ export default {
           this.subjectListInfo[index].isFrontDisplay = "否";
         }
       });
+      console.log(this.subjectList);
     },
     //点击清空按钮，输入框内容清空
     SearchClear() {
       this.$refs.formTable.content = "";
     },
     //点击搜索，出现对应内容
-    SearchFn(value) {
-      this.setSubjectList({ subjectName: value, page: 1, pagesize: 10 });
+    async SearchFn(val) {
+      this.pageinfo.subjectName = val;
+      this.getSubject();
     },
     indexMethod(index) {
       return index + 1;
     },
     //点击，实现路由跳转
-    handleClick(id, name) {
+    handleClick(val) {
       this.$router.push({
-        path: "directorys",
-        query: { id: id, name: name },
+        path: "/subjects/directorys",
+        query: val,
       });
     },
     //点击学科标签，实现路由跳转
-    handTag(id, name) {
+    handTag(val) {
       this.$router.push({
-        path: "tags",
-        query: { id: id, name: name },
+        path: "/subjects/tags",
+        query: val,
       });
     },
     // 点击分页改变
     currentChange(val) {
-      this.pages.page = val;
+      this.pageinfo.page = +val;
       this.getSubject();
     },
     //修改数字，显示每一页
     handleSizeChange(val) {
-      this.pages.page = val;
-      this.pages.pagesize = val;
+      this.pageinfo.pagesize = +val;
       this.getSubject();
     },
     //添加后，重新更新页面
@@ -244,7 +237,6 @@ export default {
     //打开修改信息弹层
     async editFn(id) {
       const { data } = await subjectInfo(id);
-      console.log(data);
       this.subjectInfo = data;
       this.dialogVisible = true;
     },

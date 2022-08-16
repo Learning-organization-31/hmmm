@@ -14,19 +14,23 @@
           :label-width="formLabelWidth"
           prop="subjectID"
         >
-          <el-select v-model="value" placeholder="请选择">
+          <el-select
+            v-model="form.subjectID"
+            placeholder="请选择"
+            class="selected"
+          >
             <el-option
-              v-for="item in subjectList"
+              v-for="item in tagList"
               :key="item.id"
               :label="item.subjectName"
-              :value="item.id"
+              :value="item.subjectID"
             ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item
           label="目录名称"
           :label-width="formLabelWidth"
-          prop="directoryName"
+          prop="tagName"
         >
           <el-input
             v-model="form.tagName"
@@ -47,20 +51,33 @@
 import { mapActions, mapState } from "vuex";
 import { add } from "../../../api/hmmm/tags";
 export default {
+  props: {
+    tagList: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
       dialogVisible: false,
       form: {
-        subjectID: 1,
+        subjectID: "",
         tagName: "",
       },
       formLabelWidth: "60px",
       //表单校验
       formRules: {
+        subjectID: [
+          {
+            required: true,
+            message: "请选择学科",
+            trigger: "blur",
+          },
+        ],
         tagName: [
           {
             required: true,
-            message: "是否显示",
+            message: "请输入目录名称",
             trigger: "blur",
           },
         ],
@@ -82,6 +99,7 @@ export default {
       this.$refs.form.resetFields();
     },
     async saveBtn() {
+      this.$refs.form.validate();
       await add(this.form);
       this.$message.success("添加成功");
       this.close(); //添加成功，关闭弹层
@@ -129,5 +147,8 @@ export default {
 }
 ::v-deep .el-select {
   margin-left: 10px;
+}
+.selected {
+  width: 80%;
 }
 </style>

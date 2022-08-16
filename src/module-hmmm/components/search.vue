@@ -8,9 +8,9 @@
         <el-select v-model="status" placeholder="请选择" :clearable="true">
           <el-option
             :label="item.statusName"
-            :value="item.statusId"
+            :value="item.id"
             v-for="item in typeList"
-            :key="item.statusId"
+            :key="item.id"
           />
         </el-select>
       </el-form-item>

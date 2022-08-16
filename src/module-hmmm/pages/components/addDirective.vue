@@ -7,19 +7,23 @@
       @click="addFn"
       >新增目录</el-button
     >
-    <el-dialog title="新增目录" :visible.sync="dialogVisible" width="25%">
+    <el-dialog title="新增目录" :visible.sync="dialogVisible" width="22%">
       <el-form :model="form" :rules="formRules" ref="form">
         <el-form-item
           label="所属学科"
           :label-width="formLabelWidth"
           prop="subjectID"
         >
-          <el-select v-model="value" placeholder="请选择">
+          <el-select
+            v-model="form.subjectID"
+            placeholder="请选择"
+            class="selectd"
+          >
             <el-option
-              v-for="item in subjectList"
+              v-for="item in directiveList"
               :key="item.id"
               :label="item.subjectName"
-              :value="item.value"
+              :value="item.subjectID"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -47,27 +51,33 @@
 import { mapActions, mapState } from "vuex";
 import { add } from "../../../api/hmmm/directorys";
 export default {
+  props: {
+    directiveList: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
       dialogVisible: false,
       form: {
-        subjectID: 1,
+        subjectID: "",
         directoryName: "",
       },
       formLabelWidth: "60px",
       //表单校验
       formRules: {
-        subjectName: [
+        subjectID: [
           {
             required: true,
             message: "请选择所属学科",
             trigger: "blur",
           },
         ],
-        isFrontDisplay: [
+        directoryName: [
           {
             required: true,
-            message: "是否显示",
+            message: "请填写目录名称",
             trigger: "blur",
           },
         ],
@@ -80,6 +90,7 @@ export default {
 
   methods: {
     ...mapActions("subject", ["setSubjectList"]),
+
     addFn() {
       this.dialogVisible = true;
     },
@@ -89,7 +100,11 @@ export default {
       this.$refs.form.resetFields();
     },
     async saveBtn() {
-      await add(this.form);
+      this.$refs.form.validate();
+      await add({
+        subjectID: this.form.subjectID,
+        directoryName: this.form.directoryName,
+      });
       this.$message.success("添加成功");
       this.close(); //添加成功，关闭弹层
       this.$emit("getDirective");
@@ -136,5 +151,8 @@ export default {
 }
 ::v-deep .el-select {
   margin-left: 10px;
+}
+.selectd {
+  width: 80%;
 }
 </style>
