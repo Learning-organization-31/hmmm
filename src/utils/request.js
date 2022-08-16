@@ -56,12 +56,20 @@ instance.interceptors.response.use(
   //       return response.data;
   //     }
   (error) => {
-    console.log("err" + error); // for debug
-    Message({
-      message: error.message,
-      type: "error",
-      duration: 5 * 1000,
-    });
+    if (error.response.status === 500) {
+      Message({
+        message: "服务器出错了,亲~",
+        type: "error",
+        duration: 5 * 1000,
+      });
+    } else {
+      Message({
+        message: error.message,
+        type: "error",
+        duration: 5 * 1000,
+      });
+    }
+
     return Promise.reject(error);
   }
 );

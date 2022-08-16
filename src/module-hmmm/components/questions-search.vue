@@ -208,7 +208,7 @@ export default {
       difficulty,
       direction,
       provinces: provinces(),
-      citys,
+      citys: [], //二级城市列表
       catalogList: [], //目录列表
       tagsList: [], //标签列表
       userList: [],
@@ -237,6 +237,7 @@ export default {
   methods: {
     //通过第一级城市获取第二级城市
     provincesChange(val) {
+      this.params.city = "";
       this.citys = citys(val);
     },
 
@@ -264,6 +265,9 @@ export default {
       for (let key in this.params) {
         this.params[key] = "";
       }
+      this.citys = [];
+      this.catalogList = []; //目录列表
+      this.tagsList = []; //标签列表
     },
   },
 

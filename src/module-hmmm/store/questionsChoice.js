@@ -28,7 +28,6 @@ export default {
     //修改精选题库的数据内容
     SET_CHOICE_INFO(state, payload) {
       state.choiceInfo = payload;
-      console.log(state.choiceInfo);
     },
     //修改精选题库搜索所需条件页码
     SET_DATA_PAGE(state, payload) {
@@ -41,6 +40,14 @@ export default {
     //修改精选题库搜索所需条件审核状态
     SET_DATA_CHK_STATE(state, payload) {
       state.data.chkState = payload;
+    },
+    //遍历修改params中的内容
+    SET_PARAMS(state, payload) {
+      for (let key in payload) {
+        state.data[key] = payload[key];
+      }
+      //每次搜索需要把当前页修改为1
+      state.data.page = 1;
     },
   },
 

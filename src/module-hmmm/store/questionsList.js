@@ -46,7 +46,6 @@ export default {
       }
       //每次搜索需要把当前页修改为1
       state.params.page = 1;
-      console.log(state.params);
     },
   },
 
