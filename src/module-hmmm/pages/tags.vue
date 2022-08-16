@@ -10,7 +10,14 @@
         }}</el-breadcrumb-item>
         <el-breadcrumb-item>目录</el-breadcrumb-item>
       </el-breadcrumb>
-      <Search leftTitle="标签名称" rightTitle="状态"></Search>
+      <Search
+        leftTitle="标签名称"
+        rightTitle="状态"
+        @SearchClear="SearchClear"
+        @SearchContent="SearchFn"
+        :typeList="typeList"
+        ref="form"
+      ></Search>
       <addTag @getTag="getTag" :tagList="tagList"></addTag>
       <el-tag type="info">
         <i class="el-icon-info"></i>
@@ -116,11 +123,12 @@ export default {
   },
   data() {
     return {
+      typeList: [],
       tagList: [],
       pages: {
         page: 1,
         pagesize: 10,
-        directoryName: "",
+        tagName: "",
         state: null,
         subjectID: null,
       },
@@ -180,9 +188,18 @@ export default {
       this.pages.page = val;
       this.getTagList();
     },
-    //
+    SearchClear() {},
+    //点击搜索
+    SearchFn(value, state) {
+      this.pages.tagName = value;
+      if (state !== "") {
+        this.pages.state = state;
+      } else {
+        this.pages.state = null;
+      }
+      this.getTagList();
+    },
     handleSizeChange(val) {
-      this.pages.page = val;
       this.pages.pagesize = val;
       this.getTagList();
     },
@@ -207,6 +224,7 @@ export default {
       await changeState(row);
       this.$message.success("状态修改成功");
     },
+
     //点击修改按钮
     async editInfo(id) {
       const { data } = await tagInfo(id);

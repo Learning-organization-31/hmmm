@@ -5,12 +5,12 @@
         <el-input ref="leftTitle" v-model="content"></el-input>
       </el-form-item>
       <el-form-item :label="rightTitle" v-if="rightTitle" class="status">
-        <el-select v-model="status" placeholder="请选择" :clearable="true">
+        <el-select v-model="state" placeholder="请选择" :clearable="true">
           <el-option
-            :label="item.statusName"
-            :value="item.id"
-            v-for="item in typeList"
-            :key="item.id"
+            :label="item.value"
+            :value="item.state"
+            v-for="item in typeStatus"
+            :key="item.state"
           />
         </el-select>
       </el-form-item>
@@ -45,7 +45,17 @@ export default {
   data() {
     return {
       content: "",
-      status: "",
+      state: "",
+      typeStatus: [
+        {
+          value: "启用",
+          state: 1,
+        },
+        {
+          value: "禁用",
+          state: 0,
+        },
+      ],
     };
   },
 
@@ -54,11 +64,13 @@ export default {
   methods: {
     //点击清除，输入框内容清空
     clearSearch() {
-      this.$emit("SearchClear", this.content, this.status);
+      this.content = "";
+      this.state = "";
+      this.$emit("SearchClear", this.content, this.state);
     },
     //点击搜索，获取内容
     clickSearch() {
-      this.$emit("SearchContent", this.content, this.status);
+      this.$emit("SearchContent", this.content, this.state);
     },
   },
 };

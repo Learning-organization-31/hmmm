@@ -194,24 +194,19 @@ export default {
       //     this.directiveList[index].state = "已禁用";
       //   }
       // });
-      this.typeList = [
-        { id: 1, statusName: "已启用" },
-        { id: 0, statusName: "已禁用" },
-      ];
     },
     //点击清除按钮，搜索框内容清空
     SearchClear() {
       this.$refs.form.content = "";
     },
     //搜索框搜索
-    SearchFn(value) {
-      this.pages.directoryName = value[0];
-      if (value[1] !== "") {
-        this.pages.state = value[1];
+    async SearchFn(value, state) {
+      this.pages.directoryName = value;
+      if (state !== "") {
+        this.pages.state = state;
       } else {
         this.pages.state = null;
       }
-      console.log(this.pages);
       this.getDirective();
     },
     //修改分页
