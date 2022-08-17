@@ -67,6 +67,52 @@
               <span class="col-pan" @click="remove(row)">删除</span>
             </el-col>
           </el-row>
+          <!-- 待审核 待发布-->
+          <el-row v-if="row.chkState === 0 && row.publishState === 1">
+            <el-col :span="5">
+              <span class="col-pan" @click="seeChoice(row)">预览</span>
+            </el-col>
+            <el-col :span="5">
+              <span class="col-pan" @click="choiceCheckFn(row)">审核</span>
+            </el-col>
+            <el-col :span="5">
+              <span class="col-pan no">修改</span>
+            </el-col>
+            <el-col :span="5">
+              <span class="col-pan" @click="choicePublishDown(row)">下架</span>
+            </el-col>
+            <el-col :span="4">
+              <span class="col-pan no">删除</span>
+            </el-col>
+          </el-row>
+          <!-- 已下架 -->
+          <el-row v-if="row.chkState === 1 && row.publishState === 0">
+            <el-col :span="5">
+              <span class="col-pan" @click="seeChoice(row)">预览</span>
+            </el-col>
+            <el-col :span="5"> <span class="col-pan no">审核</span> </el-col>
+            <el-col :span="5">
+              <span class="col-pan" @click="goNews(row)">修改</span>
+            </el-col>
+            <el-col :span="5">
+              <span class="col-pan" @click="choicePublishUp(row)">上架</span>
+            </el-col>
+            <el-col :span="4">
+              <span class="col-pan" @click="remove(row)">删除</span>
+            </el-col>
+          </el-row>
+          <!-- 已发布 -->
+          <el-row v-if="row.chkState === 1 && row.publishState === 1">
+            <el-col :span="5">
+              <span class="col-pan" @click="seeChoice(row)">预览</span>
+            </el-col>
+            <el-col :span="5"> <span class="col-pan no">审核</span> </el-col>
+            <el-col :span="5"> <span class="col-pan no">修改</span> </el-col>
+            <el-col :span="5">
+              <span class="col-pan" @click="choicePublishDown(row)">下架</span>
+            </el-col>
+            <el-col :span="4"> <span class="col-pan no">删除</span> </el-col>
+          </el-row>
           <!-- 已拒绝 -->
           <el-row v-if="row.chkState === 2 && row.publishState === 0">
             <el-col :span="5">
@@ -92,34 +138,6 @@
             <el-col :span="5">
               <span class="col-pan no">修改</span>
             </el-col>
-            <el-col :span="5">
-              <span class="col-pan" @click="choicePublishDown(row)">下架</span>
-            </el-col>
-            <el-col :span="4"> <span class="col-pan no">删除</span> </el-col>
-          </el-row>
-          <!-- 已下架 -->
-          <el-row v-if="row.chkState === 1 && row.publishState === 0">
-            <el-col :span="5">
-              <span class="col-pan" @click="seeChoice(row)">预览</span>
-            </el-col>
-            <el-col :span="5"> <span class="col-pan no">审核</span> </el-col>
-            <el-col :span="5">
-              <span class="col-pan" @click="goNews(row)">修改</span>
-            </el-col>
-            <el-col :span="5">
-              <span class="col-pan" @click="choicePublishUp(row)">上架</span>
-            </el-col>
-            <el-col :span="4">
-              <span class="col-pan" @click="remove(row)">删除</span>
-            </el-col>
-          </el-row>
-          <!-- 已发布 -->
-          <el-row v-if="row.chkState === 1 && row.publishState === 1">
-            <el-col :span="5">
-              <span class="col-pan" @click="seeChoice(row)">预览</span>
-            </el-col>
-            <el-col :span="5"> <span class="col-pan no">审核</span> </el-col>
-            <el-col :span="5"> <span class="col-pan no">修改</span> </el-col>
             <el-col :span="5">
               <span class="col-pan" @click="choicePublishDown(row)">下架</span>
             </el-col>
@@ -235,7 +253,6 @@ export default {
         this.closeFn();
         this.getChoiceInfo(this.data);
       } catch (error) {
-        console.log(error);
       }
     },
 

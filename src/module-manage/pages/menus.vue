@@ -18,11 +18,14 @@
         <el-table-column label="标题">
           <template v-slot="{ row }">
             <i
-              v-if="row.childs && !row.childs?.[0].is_point"
+              v-if="row.childs && row.childs.some((item) => !item.is_point)"
               class="el-icon-folder-opened menus-icon"
             ></i>
             <i
-              v-if="!row.is_point && (row.childs?.[0].is_point || !row.childs)"
+              v-if="
+                !row.is_point &&
+                (row.childs?.every((item) => item.is_point) || !row.childs)
+              "
               class="el-icon-document-remove menus-icon"
             ></i>
             <i v-if="row.is_point" class="el-icon-view menus-icon"></i>
@@ -55,7 +58,13 @@
       </el-table>
     </el-card>
     <!-- 弹出层 -->
-    <menusAdd ref="menusAdd" text="创建" pageTitle="菜单" />
+    <menusAdd
+      @handleCloseModal="handleCloseModal"
+      ref="menusAdd"
+      text="创建"
+      pageTitle="菜单"
+      :treeStructure.sync="isDisabled"
+    />
   </div>
 </template>
 
@@ -63,12 +72,13 @@
 import headerTool from "../components/header-tool.vue";
 import menusAdd from "../components/menu-add.vue";
 import { mapActions, mapState } from "vuex";
-import { remove } from "@/api/base/menus";
+import { remove, detail } from "@/api/base/menus";
 
 export default {
   data() {
     return {
       renderList: [],
+      isDisabled: false,
     };
   },
 
@@ -88,8 +98,22 @@ export default {
       );
     },
     // 点击修改
-    exitmenus(id) {
-      console.log(id);
+    async exitmenus(id) {
+      this.isDisabled = true;
+      this.$refs.menusAdd.handleResetForm();
+      this.$refs.menusAdd.dialogFormVisible = true;
+      const { data } = await detail(id);
+      console.log(data);
+
+      if (data.is_point) {
+        this.$refs.menusAdd.type = "points";
+        this.$refs.menusAdd.formPoints = data;
+        this.$refs.menusAdd.changeToPoints();
+      } else {
+        this.$refs.menusAdd.type = "menu";
+        this.$refs.menusAdd.formMenu = data;
+        this.$refs.menusAdd.changeToMenu();
+      }
     },
     // 点击删除
     delmenus(id) {
@@ -115,7 +139,13 @@ export default {
     },
     // 点击添加菜单
     rightBtn() {
+      this.$refs.menusAdd.handleResetForm();
       this.$refs.menusAdd.dialogFormVisible = true;
+    },
+    handleCloseModal() {
+      this.isDisabled = false;
+      this.getmenus();
+      this.$refs.menusAdd.OnClose();
     },
   },
   computed: {
@@ -130,7 +160,7 @@ export default {
     font-size: 20px;
   }
 }
-::v-deep.el-table [class*="el-table__row--level"] .el-table__expand-icon {
-  display: none;
-}
+// ::v-deep.el-table [class*="el-table__row--level"] .el-table__expand-icon {
+//   display: none;
+// }
 </style>

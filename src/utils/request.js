@@ -5,10 +5,9 @@ import { getToken } from "@/utils/auth";
 
 // create an axios instance
 const instance = axios.create({
-  baseURL: "http://hmmm-api.itheima.net/", // api的base_url
+  baseURL: "http://liufusong.top:7001", // api的base_url
   timeout: 5000, // request timeout
 });
-
 // request interceptor
 instance.interceptors.request.use(
   (config) => {
@@ -56,12 +55,20 @@ instance.interceptors.response.use(
   //       return response.data;
   //     }
   (error) => {
-    console.log("err" + error); // for debug
-    Message({
-      message: error.message,
-      type: "error",
-      duration: 5 * 1000,
-    });
+    if (error.response.status === 500) {
+      Message({
+        message: "服务器出错了,亲~",
+        type: "error",
+        duration: 5 * 1000,
+      });
+    } else {
+      Message({
+        message: error.message,
+        type: "error",
+        duration: 5 * 1000,
+      });
+    }
+
     return Promise.reject(error);
   }
 );

@@ -41,6 +41,14 @@ export default {
     SET_DATA_CHK_STATE(state, payload) {
       state.data.chkState = payload;
     },
+    //遍历修改params中的内容
+    SET_PARAMS(state, payload) {
+      for (let key in payload) {
+        state.data[key] = payload[key];
+      }
+      //每次搜索需要把当前页修改为1
+      state.data.page = 1;
+    },
   },
 
   actions: {

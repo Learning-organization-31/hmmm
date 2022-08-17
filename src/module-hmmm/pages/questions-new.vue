@@ -54,33 +54,38 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="城市：" prop="province" :required="true">
-        <el-select
-          placeholder="请选择"
-          style="width: 197px"
-          v-model="body.province"
-          @change="provinceChange"
-        >
-          <el-option
-            v-for="item in provincesList"
-            :key="item"
-            :value="item"
-            :label="item"
-          ></el-option>
-        </el-select>
-        <el-select
-          placeholder="请选择"
-          style="width: 197px; margin-left: 6px"
-          v-model="body.city"
-        >
-          <el-option
-            v-for="item in citysList"
-            :key="item"
-            :value="item"
-            :label="item"
-          ></el-option>
-        </el-select>
-      </el-form-item>
+      <div calss="province">
+        <el-form-item label="城市：" prop="province" :required="true">
+          <el-select
+            placeholder="请选择"
+            style="width: 197px"
+            v-model="body.province"
+            @change="provinceChange"
+          >
+            <el-option
+              v-for="item in provincesList"
+              :key="item"
+              :value="item"
+              :label="item"
+            ></el-option>
+          </el-select>
+
+          <el-form-item prop="city" style="display: inline-block">
+            <el-select
+              placeholder="请选择"
+              style="width: 197px; margin-left: 6px"
+              v-model="body.city"
+            >
+              <el-option
+                v-for="item in citysList"
+                :key="item"
+                :value="item"
+                :label="item"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form-item>
+      </div>
 
       <el-form-item label="方向：" prop="direction">
         <el-select
@@ -120,7 +125,7 @@
       </el-form-item>
 
       <el-form-item label="题干: " prop="question">
-        <quill-editor v-model="body.question" :options="editorOption" />
+        <Editor v-model="body.question" @blur="questionBlur" ref="EditorOne" />
       </el-form-item>
 
       <el-form-item label="选择: " v-if="body.questionType !== 3">
@@ -144,14 +149,18 @@
 
             <el-upload
               class="avatar-uploader"
-              action="https://jsonplaceholder.typicode.com/posts/"
+              action="#"
+              :http-request="httpRequest"
               :show-file-list="false"
-              :on-success="handleAvatarSuccess"
               @click.native="clickUpLoad(index, $event)"
               :before-upload="beforeAvatarUpload"
             >
               <img v-if="item.img" :src="item.img" class="avatar" />
               <p v-else>上传图片</p>
+              <i
+                class="el-icon-circle-close"
+                @click="removeImg(index, $event)"
+              ></i>
             </el-upload>
           </div>
           <el-button
@@ -173,7 +182,8 @@
           <div
             v-for="(item, index) in body.options"
             :key="index"
-            class="active check"
+            class="active"
+            :class="index === 0 ? 'check' : 'check1'"
           >
             <el-checkbox :label="item.code"> {{ item.code }}： </el-checkbox>
             <el-input
@@ -183,14 +193,18 @@
 
             <el-upload
               class="avatar-uploader"
-              action="https://jsonplaceholder.typicode.com/posts/"
+              action="#"
+              :http-request="httpRequest"
               :show-file-list="false"
               @click.native="clickUpLoad(index, $event)"
-              :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
             >
               <img v-if="item.img" :src="item.img" class="avatar" />
               <p v-else>上传图片</p>
+              <i
+                class="el-icon-circle-close"
+                @click="removeImg(index, $event)"
+              ></i>
             </el-upload>
           </div>
           <el-button
@@ -209,7 +223,12 @@
       </el-form-item>
 
       <el-form-item label="答案解析: " prop="answer">
-        <quill-editor v-model="body.answer" :options="editorOption" />
+        <Editor
+          v-model="body.answer"
+          @blur="answerBlur"
+          :editorIndex="1"
+          ref="EditorTwo"
+        />
       </el-form-item>
 
       <el-form-item label="题目备注: " prop="remarks">
@@ -250,12 +269,12 @@
 </template>
 
 <script>
-const toolbarOptions = [
-  ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线 -----['bold', 'italic', 'underline', 'strike']
-  [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表-----[{ list: 'ordered' }, { list: 'bullet' }]
-  ["blockquote"], // 引用  代码块-----['blockquote', 'code-block']
-  ["code-block", "image", "link"], // 链接、图片、视频-----['link', 'image', 'video']
-];
+import COS from "cos-js-sdk-v5";
+const cos = new COS({
+  SecretId: "AKIDb3IJ5f191g7KI2ZrujLjsmQr43nMhpjO",
+  SecretKey: "VlmZ7RaU9dssmJchX8WgaFhGH2YqujId",
+});
+
 import { list as getSubjectsList } from "@/api/hmmm/subjects";
 import { list as getCompanysList } from "@/api/hmmm/companys";
 import { simple } from "@/api/hmmm/directorys";
@@ -263,6 +282,7 @@ import { list as getTagsList } from "@/api/hmmm/tags";
 import { provinces, citys } from "@/api/hmmm/citys";
 import { direction, questionType, difficulty } from "@/api/hmmm/constants";
 import { add, detail as getDetailInfo, update } from "@/api/hmmm/questions";
+import Editor from "../components/Editor";
 
 export default {
   name: "QuestionsNew",
@@ -322,15 +342,7 @@ export default {
         remarks: "", //题目备注
         tags: [], //试题标签
       },
-      html: "",
-      editorOption: {
-        placeholder: "",
-        modules: {
-          toolbar: {
-            container: toolbarOptions,
-          },
-        },
-      },
+
       rules: {
         subjectID: [
           { required: true, message: "请选择学科", trigger: "change" },
@@ -343,12 +355,14 @@ export default {
         ],
         province: [
           {
-            validator: (rule, value, callback) => {
-              if (!this.body.province || !this.body.city) {
-                return callback(new Error(""));
-              }
-              callback();
-            },
+            required: true,
+            message: "请选择地区",
+            trigger: "change",
+          },
+        ],
+        city: [
+          {
+            required: true,
             message: "请选择地区",
             trigger: "change",
           },
@@ -366,11 +380,17 @@ export default {
         tags: [{ required: true, message: "请选择试题", trigger: "change" }],
       },
       imgIndex: "",
+      index: "",
       queryId: "",
+      imgFlag: true,
     };
   },
 
   created() {
+    this.$notify({
+      message: "张尊勇",
+    });
+    //进入页面判断是修改还是新增
     this.queryId = this.$route.query.id;
     if (this.queryId) {
       this.getDetailInfo();
@@ -382,20 +402,66 @@ export default {
   },
 
   methods: {
-    // 图片
-    handleAvatarSuccess(res, file) {
-      this.body.options[this.imgIndex].img = URL.createObjectURL(file.raw);
+    //视频解析单独校验
+    answerBlur() {
+      this.$refs.ruleForm.validateField("answer");
     },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
 
-      if (!isJPG) {
-        this.$message.error("上传图片只能是 JPG 格式!");
-        return false;
-      }
-      if (!isLt2M) {
-        this.$message.error("上传图片大小不能超过 2MB!");
+    //题干发生变化的时候单独校验题干
+    questionBlur() {
+      this.$refs.ruleForm.validateField("question");
+    },
+
+    //点击关闭小图标清除图片
+    removeImg(index, e) {
+      e.stopPropagation();
+      this.body.options[index].img = "";
+    },
+
+    // 图片
+    //自定义发送请求
+    httpRequest({ file }) {
+      cos.putObject(
+        {
+          Bucket: "bianling-1313341649" /* 必须 */,
+          Region: "ap-shanghai" /* 存储桶所在地域，必须字段 */,
+          Key: file.name /* 必须 */,
+          StorageClass: "STANDARD",
+          Body: file, // 上传文件对象
+        },
+        (err, data) => {
+          if (err || data.statusCode !== 200) {
+            this.imgFlag = true;
+            return this.$message.error("上传失败");
+          }
+          this.body.options[this.index].img = "http://" + data.Location;
+          this.imgFlag = true;
+        }
+      );
+    },
+
+    beforeAvatarUpload(file) {
+      if (this.imgFlag) {
+        this.imgFlag = false;
+        this.index = this.imgIndex;
+        const isJPG = ["image/jpeg", "image/png", "image/gif"].includes(
+          file.type
+        );
+
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error("上传图片只能是 JPG,png,gif 格式!");
+          this.imgFlag = true;
+          return false;
+        }
+        if (!isLt2M) {
+          this.$message.error("上传图片大小不能超过 2MB!");
+          this.imgFlag = true;
+          return false;
+        }
+      } else {
+        this.$message.error("当前有图片正在上传,请稍后重试");
         return false;
       }
     },
@@ -412,12 +478,11 @@ export default {
       data.tags = data.tags.split(",");
       this.body = data;
       //下方用于判断正确答案
-      console.log(this.body);
       if (this.body.questionType === 1) {
         // console.log("单选");
         this.radioCheckout = this.body.options.find((item) => {
           return item.isRight;
-        }).code;
+        })?.code;
       } else if (this.body.questionType === 2) {
         // console.log("多选");
         this.body.options.forEach((item) => {
@@ -426,6 +491,10 @@ export default {
           }
         });
       }
+      //回滚到顶部
+      this.$nextTick(() => {
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+      });
     },
 
     //复选框状态发生改变时
@@ -500,101 +569,113 @@ export default {
 
     //确认按钮
     async fromSubmit() {
-      try {
-        await this.$refs.ruleForm.validate();
-        //进行答案校验
-        if (this.body.questionType === 1) {
-          if (this.radioCheckout === "") {
-            return this.$message.error("单选题未选择答案");
+      if (this.imgFlag) {
+        try {
+          await this.$refs.ruleForm.validate();
+          //进行答案校验
+          if (this.body.questionType === 1) {
+            if (this.radioCheckout === "") {
+              return this.$message.error("单选题未选择答案");
+            }
+          } else if (this.body.questionType === 2) {
+            if (!this.checkList[1]) {
+              return this.$message.error("多选题至少选择两个答案");
+            }
           }
-        } else if (this.body.questionType === 2) {
-          if (!this.checkList[1]) {
-            return this.$message.error("多选题至少选择两个答案");
-          }
-        }
-
-        const obj = { ...this.body };
-        obj.difficulty = String(obj.difficulty);
-        obj.questionType = String(obj.questionType);
-        obj.tags = obj.tags.join(",");
-        await add(obj);
-        this.$message.success("添加成功");
-        this.body = {
-          subjectID: "", //	学科
-          catalogID: "", //	目录
-          enterpriseID: "", //		企业
-          province: "", //城市
-          city: "", //地区
-          direction: "", //方向
-          questionType: 1, //题型
-          difficulty: 1, //难度
-          question: "", //题干
-          options: [
-            //选择
-            {
-              code: "A", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-            {
-              code: "B", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-            {
-              code: "C", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-            {
-              code: "D", //代码
-              title: "", //标题
-              img: "", //图片url
-              isRight: false, //是否正确答案
-            },
-          ],
-          videoURL: "", //解析视频
-          answer: "", //答案解析
-          remarks: "", //题目备注
-          tags: "", //试题标签
-        };
-        this.tagsList = [];
-        this.$refs.ruleForm.resetFields();
-      } catch (error) {}
+          const obj = { ...this.body };
+          obj.difficulty = String(obj.difficulty);
+          obj.questionType = String(obj.questionType);
+          obj.tags = obj.tags.join(",");
+          await add(obj);
+          this.$message.success("添加成功");
+          this.body = {
+            subjectID: "", //	学科
+            catalogID: "", //	目录
+            enterpriseID: "", //		企业
+            province: "", //城市
+            city: "", //地区
+            direction: "", //方向
+            questionType: 1, //题型
+            difficulty: 1, //难度
+            question: "", //题干
+            options: [
+              //选择
+              {
+                code: "A", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+              {
+                code: "B", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+              {
+                code: "C", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+              {
+                code: "D", //代码
+                title: "", //标题
+                img: "", //图片url
+                isRight: false, //是否正确答案
+              },
+            ],
+            videoURL: "", //解析视频
+            answer: "", //答案解析
+            remarks: "", //题目备注
+            tags: "", //试题标签
+          };
+          this.tagsList = [];
+          this.radioCheckout = "";
+          //清除两个富文本编辑器的内容
+          this.$refs.EditorOne.deleteText();
+          this.$refs.EditorTwo.deleteText();
+          //清除规则
+          this.$refs.ruleForm.resetFields();
+        } catch (error) {}
+      } else {
+        this.$message.error("有图片正在提交,暂时无法提交");
+      }
     },
 
     //修改按钮
     async setFromSubmit() {
-      try {
-        await this.$refs.ruleForm.validate();
-        //进行答案校验
-        if (this.body.questionType === 1) {
-          if (this.radioCheckout === "") {
-            return this.$message.error("单选题未选择答案");
+      if (this.imgFlag) {
+        try {
+          await this.$refs.ruleForm.validate();
+          //进行答案校验
+          if (this.body.questionType === 1) {
+            if (this.radioCheckout === "") {
+              return this.$message.error("单选题未选择答案");
+            }
+          } else if (this.body.questionType === 2) {
+            if (!this.checkList[1]) {
+              return this.$message.error("多选题至少选择两个答案");
+            }
           }
-        } else if (this.body.questionType === 2) {
-          if (!this.checkList[1]) {
-            return this.$message.error("多选题至少选择两个答案");
-          }
-        }
 
-        const obj = { ...this.body };
-        obj.difficulty = String(obj.difficulty);
-        obj.questionType = String(obj.questionType);
-        obj.tags = obj.tags.join(",");
-        await update(obj);
-        this.$message.success("修改成功");
-        this.$push("/questions/list");
-      } catch (error) {}
+          const obj = { ...this.body };
+          obj.difficulty = String(obj.difficulty);
+          obj.questionType = String(obj.questionType);
+          obj.tags = obj.tags.join(",");
+          await update(obj);
+          this.$message.success("修改成功");
+          this.$router.push("/questions/list");
+        } catch (error) {}
+      } else {
+        this.$message.error("目前有图片正在提交,暂时无法修改");
+      }
     },
   },
 
-  computed: {},
-
-  components: {},
+  components: {
+    Editor,
+  },
 };
 </script>
 
@@ -616,6 +697,18 @@ export default {
   }
 }
 
+.el-radio {
+  height: 36px;
+  line-height: 36px;
+}
+
+::v-deep.check1 {
+  .el-checkbox__label {
+    margin-left: 4px;
+    font-size: 14px;
+  }
+}
+
 //图片上传区域样式
 ::v-deep .avatar-uploader .el-upload {
   display: inline-block;
@@ -625,7 +718,6 @@ export default {
   border-radius: 6px;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
 }
 .avatar-uploader {
   width: 100px;
@@ -650,5 +742,21 @@ export default {
 
 ::v-deep .ql-editor {
   height: 200px;
+}
+
+.el-icon-circle-close {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+}
+
+::v-deep .province .el-form-item {
+  display: inline-block;
 }
 </style>

@@ -91,7 +91,6 @@ export default {
   methods: {
     //打开弹窗
     dialogIsShow({ id }) {
-      console.log(id);
       this.detailId = id;
       this.IsShow = true;
     },
@@ -115,12 +114,11 @@ export default {
           type: "info",
         });
         await choiceAdd({ id, choiceState: 1 });
-        this.$message.success("加入精选成功成功");
+        this.$message.success("加入精选成功");
         //成功跳转精品题库
         this.$router.push("/questions/choice");
       } catch (error) {
         if (error === "cancel") return;
-        console.log(error);
       }
     },
 
@@ -155,12 +153,12 @@ export default {
 
     //格式化提醒
     formatType(row, column, cellValue) {
-      return questionType.find((item) => item.value == cellValue).label;
+      return questionType.find((item) => item.value == cellValue)?.label;
     },
 
     //格式化难度
     formatDiff(row, column, cellValue) {
-      return difficulty.find((item) => item.value == cellValue).label;
+      return difficulty.find((item) => item.value == cellValue)?.label;
     },
 
     ...mapActions("questionsList", ["getBaseList"]),
