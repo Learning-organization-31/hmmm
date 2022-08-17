@@ -16,6 +16,7 @@ const getters = {
   errorLogs: (state) => state.errorLog.logs,
   companysList: (state) => state.companys.companysList,
   companysListEdit: (state) => state.companys.companysListEdit,
+  InterviewList: (state) => state.articles.InterviewList,
 }
 
 export default getters
