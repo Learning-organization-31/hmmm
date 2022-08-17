@@ -154,7 +154,6 @@ export default {
     //进入页面获取所有题组
     async getRandoms() {
       this.setInfo();
-      console.log(this.randomsInfo);
     },
 
     //初始化题型
@@ -180,7 +179,6 @@ export default {
       this.loading = true;
       const { data } = await randoms(this.params);
       this.randomsInfo = data;
-      console.log(this.randomsInfo);
       this.loading = false;
       this.flag = true;
     },

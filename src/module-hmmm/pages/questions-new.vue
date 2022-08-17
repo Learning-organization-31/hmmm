@@ -54,33 +54,38 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="城市：" prop="province" :required="true">
-        <el-select
-          placeholder="请选择"
-          style="width: 197px"
-          v-model="body.province"
-          @change="provinceChange"
-        >
-          <el-option
-            v-for="item in provincesList"
-            :key="item"
-            :value="item"
-            :label="item"
-          ></el-option>
-        </el-select>
-        <el-select
-          placeholder="请选择"
-          style="width: 197px; margin-left: 6px"
-          v-model="body.city"
-        >
-          <el-option
-            v-for="item in citysList"
-            :key="item"
-            :value="item"
-            :label="item"
-          ></el-option>
-        </el-select>
-      </el-form-item>
+      <div calss="province">
+        <el-form-item label="城市：" prop="province" :required="true">
+          <el-select
+            placeholder="请选择"
+            style="width: 197px"
+            v-model="body.province"
+            @change="provinceChange"
+          >
+            <el-option
+              v-for="item in provincesList"
+              :key="item"
+              :value="item"
+              :label="item"
+            ></el-option>
+          </el-select>
+
+          <el-form-item prop="city" style="display: inline-block">
+            <el-select
+              placeholder="请选择"
+              style="width: 197px; margin-left: 6px"
+              v-model="body.city"
+            >
+              <el-option
+                v-for="item in citysList"
+                :key="item"
+                :value="item"
+                :label="item"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form-item>
+      </div>
 
       <el-form-item label="方向：" prop="direction">
         <el-select
@@ -365,12 +370,14 @@ export default {
         ],
         province: [
           {
-            validator: (rule, value, callback) => {
-              if (!this.body.province || !this.body.city) {
-                return callback(new Error(""));
-              }
-              callback();
-            },
+            required: true,
+            message: "请选择地区",
+            trigger: "change",
+          },
+        ],
+        city: [
+          {
+            required: true,
             message: "请选择地区",
             trigger: "change",
           },
@@ -486,7 +493,7 @@ export default {
         // console.log("单选");
         this.radioCheckout = this.body.options.find((item) => {
           return item.isRight;
-        }).code;
+        })?.code;
       } else if (this.body.questionType === 2) {
         // console.log("多选");
         this.body.options.forEach((item) => {
@@ -495,6 +502,10 @@ export default {
           }
         });
       }
+      //回滚到顶部
+      this.$nextTick(() => {
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+      });
     },
 
     //复选框状态发生改变时
@@ -631,6 +642,7 @@ export default {
             tags: "", //试题标签
           };
           this.tagsList = [];
+          this.radioCheckout = "";
           this.$refs.ruleForm.resetFields();
         } catch (error) {}
       } else {
@@ -749,5 +761,9 @@ export default {
   font-size: 18px;
   color: #999;
   cursor: pointer;
+}
+
+::v-deep .province .el-form-item {
+  display: inline-block;
 }
 </style>

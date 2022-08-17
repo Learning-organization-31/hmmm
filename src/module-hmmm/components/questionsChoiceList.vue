@@ -253,7 +253,6 @@ export default {
         this.closeFn();
         this.getChoiceInfo(this.data);
       } catch (error) {
-        console.log(error);
       }
     },
 
