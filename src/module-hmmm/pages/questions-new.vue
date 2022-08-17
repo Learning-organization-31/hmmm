@@ -125,11 +125,7 @@
       </el-form-item>
 
       <el-form-item label="题干: " prop="question">
-        <quill-editor
-          v-model="body.question"
-          :options="editorOption"
-          @blur="questionBlur"
-        />
+        <Editor v-model="body.question" @blur="questionBlur" ref="EditorOne" />
       </el-form-item>
 
       <el-form-item label="选择: " v-if="body.questionType !== 3">
@@ -227,10 +223,11 @@
       </el-form-item>
 
       <el-form-item label="答案解析: " prop="answer">
-        <quill-editor
+        <Editor
           v-model="body.answer"
-          :options="editorOption"
           @blur="answerBlur"
+          :editorIndex="1"
+          ref="EditorTwo"
         />
       </el-form-item>
 
@@ -277,12 +274,7 @@ const cos = new COS({
   SecretId: "AKIDb3IJ5f191g7KI2ZrujLjsmQr43nMhpjO",
   SecretKey: "VlmZ7RaU9dssmJchX8WgaFhGH2YqujId",
 });
-const toolbarOptions = [
-  ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线 -----['bold', 'italic', 'underline', 'strike']
-  [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表-----[{ list: 'ordered' }, { list: 'bullet' }]
-  ["blockquote"], // 引用  代码块-----['blockquote', 'code-block']
-  ["code-block", "image", "link"], // 链接、图片、视频-----['link', 'image', 'video']
-];
+
 import { list as getSubjectsList } from "@/api/hmmm/subjects";
 import { list as getCompanysList } from "@/api/hmmm/companys";
 import { simple } from "@/api/hmmm/directorys";
@@ -290,6 +282,7 @@ import { list as getTagsList } from "@/api/hmmm/tags";
 import { provinces, citys } from "@/api/hmmm/citys";
 import { direction, questionType, difficulty } from "@/api/hmmm/constants";
 import { add, detail as getDetailInfo, update } from "@/api/hmmm/questions";
+import Editor from "../components/Editor";
 
 export default {
   name: "QuestionsNew",
@@ -349,15 +342,7 @@ export default {
         remarks: "", //题目备注
         tags: [], //试题标签
       },
-      html: "",
-      editorOption: {
-        placeholder: "",
-        modules: {
-          toolbar: {
-            container: toolbarOptions,
-          },
-        },
-      },
+
       rules: {
         subjectID: [
           { required: true, message: "请选择学科", trigger: "change" },
@@ -643,6 +628,10 @@ export default {
           };
           this.tagsList = [];
           this.radioCheckout = "";
+          //清除两个富文本编辑器的内容
+          this.$refs.EditorOne.deleteText();
+          this.$refs.EditorTwo.deleteText();
+          //清除规则
           this.$refs.ruleForm.resetFields();
         } catch (error) {}
       } else {
@@ -680,9 +669,9 @@ export default {
     },
   },
 
-  computed: {},
-
-  components: {},
+  components: {
+    Editor,
+  },
 };
 </script>
 
