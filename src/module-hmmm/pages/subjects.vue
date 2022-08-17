@@ -43,10 +43,10 @@
             <el-button type="text" size="small" @click="handTag(row)"
               >学科标签</el-button
             >
-            <el-button type="text" size="small" @click="editFn(row.id)"
+            <el-button type="text" size="small" @click="editFn(row)"
               >修改</el-button
             >
-            <el-button type="text" size="small" @click="delFn(row.id)"
+            <el-button type="text" size="small" @click="delFn(row)"
               >删除</el-button
             >
           </template>
@@ -228,16 +228,17 @@ export default {
       this.getSubject();
     },
     //删除数据
-    async delFn(id) {
+    async delFn({ row }) {
       await this.$confirm("您确定删除该数据吗？");
-      await deleteInfo(id);
+      await deleteInfo(row.id);
       this.$message.success("删除成功");
       this.getSubject();
     },
     //打开修改信息弹层
-    async editFn(id) {
-      const { data } = await subjectInfo(id);
+    async editFn({ row }) {
+      const { data } = await subjectInfo(row.id);
       this.subjectInfo = data;
+      console.log(this.subjectInfo);
       this.dialogVisible = true;
     },
     //修改信息
