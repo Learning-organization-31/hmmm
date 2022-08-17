@@ -110,6 +110,9 @@ export default {
   },
 
   created() {
+    this.$notify({
+      message: "张尊勇",
+    });
     //进入页面获取所有题组
     this.getRandoms();
   },
