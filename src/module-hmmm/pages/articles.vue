@@ -64,7 +64,6 @@
             {{ row.title
             }}<a
               style="margin-left: 8px; color: #00f"
-              @click="playVideo(row)"
               class="el-icon-film"
               v-if="!!row.videoURL"
             ></a>
