@@ -114,12 +114,11 @@ export default {
           type: "info",
         });
         await choiceAdd({ id, choiceState: 1 });
-        this.$message.success("加入精选成功成功");
+        this.$message.success("加入精选成功");
         //成功跳转精品题库
         this.$router.push("/questions/choice");
       } catch (error) {
         if (error === "cancel") return;
-        console.log(error);
       }
     },
 

@@ -111,7 +111,7 @@ export default {
   methods: {
     //判断页面是否需要弹出视频
     videoIsShowFn() {
-      if (this.detailInfo.videoURL)
+      if (!this.detailInfo.videoURL)
         return this.$message.info("该题目暂无视频答案");
       this.videoIsShow = true;
     },

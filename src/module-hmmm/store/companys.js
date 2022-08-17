@@ -20,7 +20,6 @@ export default {
     },
     async editCompanysList(contxt, payload) {
       const { data } = await detail(payload)
-      console.log(data)
       data.isFamous === 1 ? (data.isFamous = true) : (data.isFamous = false)
       contxt.commit('editCompanysList', data)
     },
