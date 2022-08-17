@@ -5,7 +5,7 @@ export const add = (data) => createAPI("/menus", "post", data);
 export const update = (data) => createAPI(`/menus/${data.id}`, "put", data);
 // 删除菜单
 export const remove = (id) => createAPI(`/menus/${id}`, "delete");
-export const detail = (data) => createAPI(`/menus/${data.id}`, "get", data);
+export const detail = (id) => createAPI(`/menus/${id}`, "get");
 
 export const search = (data) => {
   return [

@@ -1,6 +1,11 @@
 <template>
   <div class="add-form">
-    <el-dialog :title="text + pageTitle" :visible.sync="dialogFormVisible">
+    <el-dialog
+      @close="OnClose"
+      :title="text + pageTitle"
+      :visible.sync="dialogFormVisible"
+      destroy-on-close
+    >
       <el-form
         :rules="ruleInline"
         ref="formMenu"
@@ -11,6 +16,7 @@
       >
         <el-form-item :label="$t('table.permissionUser')">
           <el-radio-group
+            :disabled="treeStructure"
             v-model="type"
             class="choose-type"
             @change="handleChooseType"
@@ -161,10 +167,24 @@ export default {
       this.dialogFormVisible = true;
     },
     // 弹层隐藏
-    dialogFormH() {
+    OnClose() {
+      this.formMenu = {
+        pid: "", // 父级Id
+        is_point: "", // 是否权限点
+        code: "", // 菜单代码
+        title: "", // 标题
+      };
+      this.formPoints = {
+        pid: "", // 父级Id
+        is_point: "", // 是否权限点
+        code: "", // 菜单代码
+        title: "", // 标题
+      };
+      this.$emit("update:treeStructure", false);
       this.dialogFormVisible = false;
     },
     handleChooseType() {
+      this.formMenu.pid = "";
       if (this.type === "menu") {
         _this.changeToMenu();
       }
@@ -221,6 +241,7 @@ export default {
     // 菜单和权限点选择：编辑
     handle_Edit(object) {
       update(this.formMenu).then(() => {
+        this.$message.success("修改成功");
         this.$emit("handleCloseModal");
         this.$emit("newDataes", this.formMenu);
       });
@@ -230,6 +251,7 @@ export default {
       add(this.formMenu).then(() => {
         _this.handleResetForm();
         // _this.type = 'menu'
+        this.$message.success("添加成功");
         this.$emit("handleCloseModal");
         this.$emit("newDataes", this.formMenu);
       });
