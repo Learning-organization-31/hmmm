@@ -8,6 +8,7 @@
  */
 
 import { createAPI } from '@/utils/request'
+import { request } from 'screenfull'
 
 // 学科列表
 export const list = data => createAPI('/subjects', 'get', data)
@@ -26,3 +27,9 @@ export const update = data => createAPI(`/subjects/${data.id}`, 'put', data)
 
 // 学科删除
 export const remove = data => createAPI(`/subjects/${data.id}`, 'delete', data)
+
+//删除学科信息
+export const deleteInfo = id => createAPI(`/subjects/${id}`, 'delete')
+
+//获取修改信息
+export const subjectInfo = id => createAPI(`/subjects/${id}`, 'get')

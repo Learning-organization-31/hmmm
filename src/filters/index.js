@@ -1,6 +1,7 @@
 import { questionType, difficulty, chkType } from "@/api/hmmm/constants";
-
-function pluralize(time, label) {
+  
+import dayjs from 'dayjs'
+function pluralize (time, label) {
   if (time === 1) {
     return time + label;
   }
@@ -216,3 +217,6 @@ export const getPublishType = ({ publishState, chkState }) => {
     return "待发布";
   }
 };
+export const formateTime =(val) =>{
+  return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
+ }
