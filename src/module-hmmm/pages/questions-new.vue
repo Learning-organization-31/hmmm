@@ -120,7 +120,11 @@
       </el-form-item>
 
       <el-form-item label="题干: " prop="question">
-        <quill-editor v-model="body.question" :options="editorOption" />
+        <quill-editor
+          v-model="body.question"
+          :options="editorOption"
+          @blur="questionBlur"
+        />
       </el-form-item>
 
       <el-form-item label="选择: " v-if="body.questionType !== 3">
@@ -218,7 +222,11 @@
       </el-form-item>
 
       <el-form-item label="答案解析: " prop="answer">
-        <quill-editor v-model="body.answer" :options="editorOption" />
+        <quill-editor
+          v-model="body.answer"
+          :options="editorOption"
+          @blur="answerBlur"
+        />
       </el-form-item>
 
       <el-form-item label="题目备注: " prop="remarks">
@@ -398,6 +406,16 @@ export default {
   },
 
   methods: {
+    //视频解析单独校验
+    answerBlur() {
+      this.$refs.ruleForm.validateField("answer");
+    },
+
+    //题干发生变化的时候单独校验题干
+    questionBlur() {
+      this.$refs.ruleForm.validateField("question");
+    },
+
     //点击关闭小图标清除图片
     removeImg(index, e) {
       e.stopPropagation();
