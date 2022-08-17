@@ -66,6 +66,7 @@
               style="margin-left: 8px; color: #00f"
               class="el-icon-film"
               v-if="!!row.videoURL"
+              @click="videoClick(row)"
             ></a>
           </template>
         </el-table-column>
@@ -165,6 +166,26 @@
     />
 
     <!-- 视频播放 -->
+    <div class="video">
+      <el-dialog :visible="showVideo" width="800px" @close="videoClose">
+        <video
+          v-if="
+            /^(((ht|f)tps?):\/\/)?([^!@#$%^&*?.\s-]([^!@#$%^&*?.\s]{0,63}[^!@#$%^&*?.\s])?\.)+[a-z]{2,6}\/?/.test(
+              videoUrl
+            )
+          "
+          :src="videoUrl"
+          autoplay
+          muted="muted"
+          style="
+            width: 100%;
+            margin-bottom: -10px;
+            height: 100%;
+            object-fit: fill;
+          "
+        ></video>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -187,6 +208,8 @@ export default {
       showArticles: false,
       body: {},
       titleInfo: '',
+      showVideo: false,
+      videoUrl: 'https://v-cdn.zjol.com.cn/277004.mp4',
     }
   },
   components: {
@@ -271,6 +294,13 @@ export default {
       this.body = row
       this.showArticles = true
     },
+    videoClose() {
+      this.showVideo = false
+    },
+    videoClick(row) {
+      this.showVideo = true
+      this.videoUrl = row.videoURL
+    },
   },
 
   computed: {
@@ -282,7 +312,6 @@ export default {
 <style scoped lang="less">
 .formDate {
   display: flex;
-  // justify-content: space-evenly;
   flex-wrap: wrap;
 
   .el-form-item {
@@ -306,5 +335,30 @@ export default {
 }
 .aColor {
   color: #c0c4cc !important;
+}
+
+.video {
+  /deep/.el-dialog {
+    background: unset;
+    border-radius: unset;
+    border: unset;
+  }
+  /deep/.el-dialog__body {
+    padding: unset;
+  }
+  /deep/.el-dialog__header {
+    padding: unset;
+  }
+  /deep/.el-dialog__headerbtn {
+    font-size: 22px;
+    transform: translate(-50%, -50%);
+    top: -10%;
+    left: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgb(0 0 0 / 40%);
+  }
 }
 </style>
