@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import { questionType, difficulty, chkType } from "@/api/hmmm/constants";
-
-function pluralize(time, label) {
-=======
-
+  
 import dayjs from 'dayjs'
 function pluralize (time, label) {
->>>>>>> feature/subject
   if (time === 1) {
     return time + label;
   }
@@ -168,7 +163,6 @@ export function toThousandslsFilter(num) {
     .replace(/^-?\d+/g, (m) => m.replace(/(?=(?!\b)(\d{3})+$)/g, ","));
 }
 
-<<<<<<< HEAD
 // {
 //   value: 1,
 //   label: '单选'
@@ -223,8 +217,6 @@ export const getPublishType = ({ publishState, chkState }) => {
     return "待发布";
   }
 };
-=======
 export const formateTime =(val) =>{
   return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
  }
->>>>>>> feature/subject

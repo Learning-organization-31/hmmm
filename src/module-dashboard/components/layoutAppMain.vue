@@ -25,11 +25,8 @@ export default {
 .app-main {
   position: relative;
   top: 75px;
-<<<<<<< HEAD
   padding: 20px;
-=======
-  padding: 10px 10px;
->>>>>>> feature/subject
+
   // z-index: 0;
 }
 </style>
