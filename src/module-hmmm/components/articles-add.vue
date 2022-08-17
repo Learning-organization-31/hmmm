@@ -98,12 +98,10 @@ export default {
       }
       if (this.body.id) {
         const res = await update(data)
-        console.log(res)
         this.$parent.getInterviewListFirst()
         this.$message.success('数据更新成功')
       } else {
         const res = await add(data)
-        console.log(res)
         this.$parent.searchFn()
         this.$message.success('数据添加成功')
       }
