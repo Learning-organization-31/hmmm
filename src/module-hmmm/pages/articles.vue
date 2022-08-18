@@ -218,6 +218,20 @@ export default {
   },
   created() {
     this.getInterviewListFirst()
+
+    const h = this.$createElement
+    this.$notify({
+      title: '作业人',
+      message: h(
+        'b',
+        {
+          style: 'color: #5ee7df',
+        },
+        '肖 杰'
+      ),
+      type: 'success',
+      duration: 3000,
+    })
   },
   methods: {
     ...mapMutations('articles', ['setState']),
@@ -245,14 +259,24 @@ export default {
       this.getInterviewListFirst()
     },
 
-    currentChange(val) {
+    async currentChange(val) {
       this.page = val
-      this.getInterviewListFirst()
+      this.tableLoading = true
+      await this.getInterviewList({
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      this.tableLoading = false
     },
 
-    sizeChange(val) {
+    async sizeChange(val) {
       this.pageSize = val
-      this.getInterviewListFirst()
+      this.tableLoading = true
+      await this.getInterviewList({
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      this.tableLoading = false
     },
     showPreviewFn(row) {
       this.showPreview = true
