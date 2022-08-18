@@ -199,7 +199,6 @@ export default {
           this.subjectListInfo[index].isFrontDisplay = "否";
         }
       });
-      console.log(this.subjectList);
     },
     //点击清空按钮，输入框内容清空
     SearchClear() {
@@ -252,7 +251,6 @@ export default {
     async editFn({ row }) {
       const { data } = await subjectInfo(row.id);
       this.subjectInfo = data;
-      console.log(this.subjectInfo);
       this.dialogVisible = true;
     },
     //修改信息
