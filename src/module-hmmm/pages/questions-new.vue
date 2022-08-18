@@ -491,6 +491,7 @@ export default {
           }
         });
       }
+
       //回滚到顶部
       this.$nextTick(() => {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
