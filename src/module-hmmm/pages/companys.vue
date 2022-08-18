@@ -214,6 +214,20 @@ export default {
   created() {
     this.getCompanysListInit()
     this.getCityData()
+
+    const h = this.$createElement
+    this.$notify({
+      title: '作业人',
+      message: h(
+        'b',
+        {
+          style: 'color: #5ee7df',
+        },
+        '肖 杰'
+      ),
+      type: 'success',
+      duration: 3000,
+    })
   },
 
   methods: {
@@ -244,13 +258,23 @@ export default {
       })
       this.tableLoading = false
     },
-    currentChange(val) {
+    async currentChange(val) {
       this.page = val
-      this.getCompanysListInit()
+      this.tableLoading = true
+      await this.getCompanysList({
+        page: this.page,
+        pagesize: this.pagesize,
+      })
+      this.tableLoading = false
     },
-    sizeChange(val) {
+    async sizeChange(val) {
       this.pagesize = val
-      this.getCompanysListInit()
+      this.tableLoading = true
+      await this.getCompanysList({
+        page: this.page,
+        pagesize: this.pagesize,
+      })
+      this.tableLoading = false
     },
     // 获取省
     getCityData: function () {
