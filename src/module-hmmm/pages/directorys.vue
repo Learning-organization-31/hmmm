@@ -163,7 +163,6 @@ export default {
   created() {
     this.pages.subjectID = this.$route?.query?.row?.id;
     this.getDirective();
-    console.log(this.$route?.query?.row);
     const h = this.$createElement;
     this.$notify({
       title: "作业人",
@@ -178,15 +177,6 @@ export default {
       duration: 3000,
     });
   },
-  // watch: {
-  //   "pages.subjectID"(val) {
-  //     if (val === undefined) {
-  //       this.states = false;
-  //     } else {
-  //       this.states = true;
-  //     }
-  //   },
-  // },
   methods: {
     indexMethod(index) {
       return index + 1;
