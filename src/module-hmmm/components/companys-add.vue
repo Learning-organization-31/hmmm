@@ -118,9 +118,6 @@ export default {
   },
   computed: {
     ...mapGetters(['companysListEdit']),
-    // select() {
-    //   return this.formBase.isFamous == 1 ? true : false
-    // },
   },
   methods: {
     // 弹层显示

@@ -387,6 +387,10 @@ export default {
   },
 
   created() {
+    this.$notify({
+      message: "张尊勇",
+    });
+    //进入页面判断是修改还是新增
     this.queryId = this.$route.query.id;
     if (this.queryId) {
       this.getDetailInfo();
