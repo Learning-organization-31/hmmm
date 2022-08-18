@@ -130,10 +130,10 @@
         <el-pagination
           background
           layout="prev, pager, next,sizes, jumper"
-          :page-size="pageSize"
+          :page-size="pagesize"
           :current-page="page"
           :total="InterviewList.counts"
-          :page-sizes="[10, 20, 30, 50]"
+          :page-sizes="[5, 10, 20, 50]"
           @current-change="currentChange"
           @size-change="sizeChange"
         >
@@ -200,7 +200,7 @@ export default {
       form: {},
       tableLoading: false,
       page: 1,
-      pageSize: 10,
+      pagesize: 10,
       showPreview: false,
       articleBody: '',
       titleBody: '',
@@ -249,7 +249,7 @@ export default {
       this.tableLoading = true
       await this.getInterviewList({
         page: this.page,
-        pageSize: this.pageSize,
+        pagesize: this.pagesize,
         ...this.form,
       })
       this.tableLoading = false
@@ -264,17 +264,17 @@ export default {
       this.tableLoading = true
       await this.getInterviewList({
         page: this.page,
-        pageSize: this.pageSize,
+        pagesize: this.pagesize,
       })
       this.tableLoading = false
     },
 
     async sizeChange(val) {
-      this.pageSize = val
+      this.pagesize = val
       this.tableLoading = true
       await this.getInterviewList({
         page: this.page,
-        pageSize: this.pageSize,
+        pagesize: this.pagesize,
       })
       this.tableLoading = false
     },
