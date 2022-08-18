@@ -135,7 +135,9 @@ export default {
         //删除成功判断当前页面是不是没有数据,没有数据向前一页获取数据
         if (
           this.baseList.counts % this.baseList.pagesize === 1 &&
-          this.params.page > 1
+          this.params.page > 1 &&
+          this.params.page ===
+            Math.ceil(this.baseList.counts / this.baseList.pagesize)
         ) {
           this.SET_PARAMS_PAGE(this.params.page - 1);
         }

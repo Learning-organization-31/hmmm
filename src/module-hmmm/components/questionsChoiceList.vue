@@ -205,7 +205,9 @@ export default {
       //判断当前是否需要向前进一页
       if (
         this.choiceInfo.counts % this.choiceInfo.pagesize === 1 &&
-        this.data.page > 1
+        this.data.page > 1 &&
+        this.data.page ===
+          Math.ceil(this.choiceInfo.counts / this.choiceInfo.pagesize)
       ) {
         this.SET_DATA_PAGE(this.data.page - 1);
       }
@@ -252,8 +254,7 @@ export default {
         }
         this.closeFn();
         this.getChoiceInfo(this.data);
-      } catch (error) {
-      }
+      } catch (error) {}
     },
 
     //修改
