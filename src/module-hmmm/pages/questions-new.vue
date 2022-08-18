@@ -520,10 +520,13 @@ export default {
     },
 
     //题型发生改变将选中情况清空
-    typeChange() {
+    typeChange(val) {
       this.body.options.forEach((item) => (item.isRight = false));
       this.checkList = [];
       this.radioCheckout = "";
+      if (Number(val) === 1 && this.body.options.length > 4) {
+        this.body.options = this.body.options.splice(0, 4);
+      }
     },
 
     //添加选项
