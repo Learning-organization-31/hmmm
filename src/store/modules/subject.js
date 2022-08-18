@@ -22,17 +22,14 @@ export default {
     actions: {
     async setSubjectList(context,payload){
         const {data} = await list(payload)
-        console.log(data); 
         context.commit('getSubjectList',data)
      },
      async setDirectoryList(context,payload){
       const {data} = await directoryList(payload)
-      console.log(data.items); 
       context.commit('getDirectoryList',data.items)
    },
    async setStateList(context,payload){
       const res = await changeState(payload)
-      console.log(res)
       context.commit('getStateList',res)
    }
     }
