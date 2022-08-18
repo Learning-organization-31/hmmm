@@ -137,6 +137,12 @@ export default {
     },
   },
 
+  watch: {
+    value() {
+      this.content = this.value;
+    },
+  },
+
   computed: {},
 };
 </script>
