@@ -1,15 +1,21 @@
 <template>
   <div class="container">
     <el-card class="box-card">
-      <el-breadcrumb separator=">" v-if="$route?.query?.row?.id">
-        <el-breadcrumb-item :to="{ path: '/subjects/list' }"
-          >学科管理</el-breadcrumb-item
-        >
-        <el-breadcrumb-item>{{
-          $route.query.row.subjectName
-        }}</el-breadcrumb-item>
-        <el-breadcrumb-item>目录</el-breadcrumb-item>
-      </el-breadcrumb>
+      <div v-if="$route?.query?.row?.id">
+        <el-breadcrumb separator=">">
+          <el-breadcrumb-item :to="{ path: '/subjects/list' }"
+            >学科管理</el-breadcrumb-item
+          >
+          <el-breadcrumb-item>{{
+            $route.query.row.subjectName
+          }}</el-breadcrumb-item>
+          <el-breadcrumb-item>目录</el-breadcrumb-item>
+        </el-breadcrumb>
+        <div class="backto" @click="backtoUp">
+          <i class="el-icon-back"></i>
+          <a>返回学科</a>
+        </div>
+      </div>
       <Search
         leftTitle="标签名称"
         rightTitle="状态"
@@ -21,7 +27,7 @@
       <addTag @getTag="getTag" :tagList="tagList"></addTag>
       <el-tag type="info">
         <i class="el-icon-info"></i>
-        数据一共 {{ taginfo }} 条</el-tag
+        数据一共 {{ taginfos }} 条</el-tag
       >
       <el-table style="width: 100%" :data="tagList">
         <el-table-column
@@ -36,7 +42,7 @@
         <el-table-column prop="tagName" label="标签名称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
         <el-table-column label="创建日期">
-          <template slot-scope="row">
+          <template slot-scope="{ row }">
             {{ row.addDate | formateTime }}
           </template>
         </el-table-column>
@@ -92,7 +98,7 @@
       </el-dialog>
       <el-pagination
         background
-        :total="totalCount"
+        :total="taginfos"
         layout="prev, pager, next,sizes,jumper"
         @current-change="currentChange"
         :page-size="pages.pagesize"
@@ -139,7 +145,7 @@ export default {
         subjectID: 0,
         tagName: "",
       },
-      taginfo: "",
+      taginfos: 0,
       EditformRules: {
         subjectID: [
           {
@@ -161,10 +167,26 @@ export default {
   created() {
     this.getTagList();
     this.pages.subjectID = this.$route?.query?.row?.id;
+    const h = this.$createElement;
+    this.$notify({
+      title: "作业人",
+      message: h(
+        "b",
+        {
+          style: "color: #5ee7df",
+        },
+        "金絮帆"
+      ),
+      type: "success",
+      duration: 3000,
+    });
   },
   methods: {
     indexMethod(index) {
       return index + 1;
+    },
+    backtoUp() {
+      this.$router.back();
     },
     ...mapActions("subject", ["setSubjectList"]),
     async getTagList() {
@@ -173,7 +195,7 @@ export default {
       //   pagesize: this.pages.pagesize,
       // });
       const { data } = await list(this.pages);
-      this.taginfo = data.counts;
+      this.taginfos = data.counts;
       this.tagList = data.items;
       // this.tagList.forEach((item, index) => {
       //   if (item.state === 1) {
@@ -200,7 +222,7 @@ export default {
       this.getTagList();
     },
     handleSizeChange(val) {
-      this.pages.pagesize = val;
+      this.pages.pagesize = +val;
       this.getTagList();
     },
     //子组件调用父组件方法
@@ -275,6 +297,12 @@ export default {
   }
   ::v-deep .el-form-item__error {
     margin-left: 80px;
+  }
+  .backto {
+    color: blue;
+    position: absolute;
+    right: 150px;
+    top: 45px;
   }
 }
 </style>

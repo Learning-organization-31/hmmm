@@ -80,8 +80,8 @@
             <el-switch
               active-color="#13ce66"
               inactive-color="#ff4949"
-              :value="subjectInfo.isFrontDisplay"
-              v-model="subjectInfo.isFrontDisplay"
+              :value="subjectInfo.isFrontDisplay === 1"
+              v-model="value"
             >
             </el-switch>
           </el-form-item>
@@ -157,6 +157,19 @@ export default {
   created() {
     this.getSubject();
     this.getInfoList();
+    const h = this.$createElement;
+    this.$notify({
+      title: "作业人",
+      message: h(
+        "b",
+        {
+          style: "color: #5ee7df",
+        },
+        "金絮帆"
+      ),
+      type: "success",
+      duration: 3000,
+    });
   },
   computed: {
     ...mapState("subject", ["subjectList"]),

@@ -61,7 +61,7 @@
     <menusAdd
       @handleCloseModal="handleCloseModal"
       ref="menusAdd"
-      text="创建"
+      :text="menusAddText"
       pageTitle="菜单"
       :treeStructure.sync="isDisabled"
     />
@@ -79,6 +79,7 @@ export default {
     return {
       renderList: [],
       isDisabled: false,
+      menusAddText: "创建",
     };
   },
 
@@ -86,6 +87,10 @@ export default {
 
   created() {
     this.getmenus();
+    this.$notify({
+      message: "徐金平",
+      duration: 1500,
+    });
   },
 
   methods: {
@@ -99,6 +104,7 @@ export default {
     },
     // 点击修改
     async exitmenus(id) {
+      this.menusAddText = "编辑";
       this.isDisabled = true;
       this.$refs.menusAdd.handleResetForm();
       this.$refs.menusAdd.dialogFormVisible = true;
@@ -139,6 +145,7 @@ export default {
     },
     // 点击添加菜单
     rightBtn() {
+      this.menusAddText = "创建";
       this.$refs.menusAdd.handleResetForm();
       this.$refs.menusAdd.dialogFormVisible = true;
     },

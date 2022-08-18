@@ -1,15 +1,21 @@
 <template>
   <div class="container">
     <el-card class="box-card">
-      <el-breadcrumb separator=">" v-if="$route?.query?.row?.id">
-        <el-breadcrumb-item :to="{ path: '/subjects/list' }"
-          ><span class="manger"> 学科管理 </span></el-breadcrumb-item
-        >
-        <el-breadcrumb-item>{{
-          $route.query.row.subjectName
-        }}</el-breadcrumb-item>
-        <el-breadcrumb-item>目录</el-breadcrumb-item>
-      </el-breadcrumb>
+      <div v-if="$route?.query?.row?.id">
+        <el-breadcrumb separator=">">
+          <el-breadcrumb-item :to="{ path: '/subjects/list' }"
+            ><span class="manger"> 学科管理 </span></el-breadcrumb-item
+          >
+          <el-breadcrumb-item>{{
+            $route.query.row.subjectName
+          }}</el-breadcrumb-item>
+          <el-breadcrumb-item>目录</el-breadcrumb-item>
+        </el-breadcrumb>
+        <div class="backto" @click="backtoUp">
+          <i class="el-icon-back"></i>
+          <a>返回学科</a>
+        </div>
+      </div>
       <Search
         leftTitle="目录名称"
         rightTitle="状态"
@@ -158,6 +164,19 @@ export default {
     this.pages.subjectID = this.$route?.query?.row?.id;
     this.getDirective();
     console.log(this.$route?.query?.row);
+    const h = this.$createElement;
+    this.$notify({
+      title: "作业人",
+      message: h(
+        "b",
+        {
+          style: "color: #5ee7df",
+        },
+        "金絮帆"
+      ),
+      type: "success",
+      duration: 3000,
+    });
   },
   // watch: {
   //   "pages.subjectID"(val) {
@@ -171,6 +190,9 @@ export default {
   methods: {
     indexMethod(index) {
       return index + 1;
+    },
+    backtoUp() {
+      this.$router.back();
     },
     ...mapActions("subject", ["setSubjectList"]),
     ...mapActions("subject", ["setDirectoryList"]),
@@ -296,6 +318,12 @@ export default {
   }
   .manger {
     color: #333;
+  }
+  .backto {
+    color: blue;
+    position: absolute;
+    right: 150px;
+    top: 45px;
   }
 }
 </style>
