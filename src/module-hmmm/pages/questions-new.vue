@@ -751,6 +751,7 @@ export default {
   width: 18px;
   height: 18px;
   background: #fff;
+  border-radius: 50%;
   font-size: 18px;
   color: #999;
   cursor: pointer;
