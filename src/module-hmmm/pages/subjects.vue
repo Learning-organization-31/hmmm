@@ -80,8 +80,9 @@
             <el-switch
               active-color="#13ce66"
               inactive-color="#ff4949"
-              :value="subjectInfo.isFrontDisplay === 1"
-              v-model="value"
+              v-model="subjectInfo.isFrontDisplay"
+              :active-value="1"
+              :inactive-value="0"
             >
             </el-switch>
           </el-form-item>
