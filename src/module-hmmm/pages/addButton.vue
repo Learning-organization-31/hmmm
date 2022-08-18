@@ -8,7 +8,7 @@
       >新增学科</el-button
     >
     <el-dialog title="新增学科" :visible.sync="dialogVisible" width="20%">
-      <el-form :model="form" :rules="formRules" ref="form">
+      <el-form :model="form" :rules="formRules" ref="formTable">
         <el-form-item
           label="学科名称"
           :label-width="formLabelWidth"
@@ -78,7 +78,7 @@ export default {
     //点击按钮新增
     async saveBtn() {
       //点击新增，如果内容为空，进行表单校验
-      this.$refs.form.validate();
+      this.$refs.formTable.validate();
       await add({
         subjectName: this.form.subjectName,
         isFrontDisplay: this.form.isFrontDisplay,
