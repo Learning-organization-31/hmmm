@@ -54,33 +54,38 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="城市：" prop="province" :required="true">
-        <el-select
-          placeholder="请选择"
-          style="width: 197px"
-          v-model="body.province"
-          @change="provinceChange"
-        >
-          <el-option
-            v-for="item in provincesList"
-            :key="item"
-            :value="item"
-            :label="item"
-          ></el-option>
-        </el-select>
-        <el-select
-          placeholder="请选择"
-          style="width: 197px; margin-left: 6px"
-          v-model="body.city"
-        >
-          <el-option
-            v-for="item in citysList"
-            :key="item"
-            :value="item"
-            :label="item"
-          ></el-option>
-        </el-select>
-      </el-form-item>
+      <div calss="province">
+        <el-form-item label="城市：" prop="province" :required="true">
+          <el-select
+            placeholder="请选择"
+            style="width: 197px"
+            v-model="body.province"
+            @change="provinceChange"
+          >
+            <el-option
+              v-for="item in provincesList"
+              :key="item"
+              :value="item"
+              :label="item"
+            ></el-option>
+          </el-select>
+
+          <el-form-item prop="city" style="display: inline-block">
+            <el-select
+              placeholder="请选择"
+              style="width: 197px; margin-left: 6px"
+              v-model="body.city"
+            >
+              <el-option
+                v-for="item in citysList"
+                :key="item"
+                :value="item"
+                :label="item"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form-item>
+      </div>
 
       <el-form-item label="方向：" prop="direction">
         <el-select
@@ -120,7 +125,7 @@
       </el-form-item>
 
       <el-form-item label="题干: " prop="question">
-        <quill-editor v-model="body.question" :options="editorOption" />
+        <Editor v-model="body.question" @blur="questionBlur" ref="EditorOne" />
       </el-form-item>
 
       <el-form-item label="选择: " v-if="body.questionType !== 3">
@@ -218,7 +223,12 @@
       </el-form-item>
 
       <el-form-item label="答案解析: " prop="answer">
-        <quill-editor v-model="body.answer" :options="editorOption" />
+        <Editor
+          v-model="body.answer"
+          @blur="answerBlur"
+          :editorIndex="1"
+          ref="EditorTwo"
+        />
       </el-form-item>
 
       <el-form-item label="题目备注: " prop="remarks">
@@ -264,12 +274,7 @@ const cos = new COS({
   SecretId: "AKIDb3IJ5f191g7KI2ZrujLjsmQr43nMhpjO",
   SecretKey: "VlmZ7RaU9dssmJchX8WgaFhGH2YqujId",
 });
-const toolbarOptions = [
-  ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线 -----['bold', 'italic', 'underline', 'strike']
-  [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表-----[{ list: 'ordered' }, { list: 'bullet' }]
-  ["blockquote"], // 引用  代码块-----['blockquote', 'code-block']
-  ["code-block", "image", "link"], // 链接、图片、视频-----['link', 'image', 'video']
-];
+
 import { list as getSubjectsList } from "@/api/hmmm/subjects";
 import { list as getCompanysList } from "@/api/hmmm/companys";
 import { simple } from "@/api/hmmm/directorys";
@@ -277,6 +282,7 @@ import { list as getTagsList } from "@/api/hmmm/tags";
 import { provinces, citys } from "@/api/hmmm/citys";
 import { direction, questionType, difficulty } from "@/api/hmmm/constants";
 import { add, detail as getDetailInfo, update } from "@/api/hmmm/questions";
+import Editor from "../components/Editor";
 
 export default {
   name: "QuestionsNew",
@@ -336,15 +342,7 @@ export default {
         remarks: "", //题目备注
         tags: [], //试题标签
       },
-      html: "",
-      editorOption: {
-        placeholder: "",
-        modules: {
-          toolbar: {
-            container: toolbarOptions,
-          },
-        },
-      },
+
       rules: {
         subjectID: [
           { required: true, message: "请选择学科", trigger: "change" },
@@ -357,12 +355,14 @@ export default {
         ],
         province: [
           {
-            validator: (rule, value, callback) => {
-              if (!this.body.province || !this.body.city) {
-                return callback(new Error(""));
-              }
-              callback();
-            },
+            required: true,
+            message: "请选择地区",
+            trigger: "change",
+          },
+        ],
+        city: [
+          {
+            required: true,
             message: "请选择地区",
             trigger: "change",
           },
@@ -387,6 +387,10 @@ export default {
   },
 
   created() {
+    this.$notify({
+      message: "张尊勇",
+    });
+    //进入页面判断是修改还是新增
     this.queryId = this.$route.query.id;
     if (this.queryId) {
       this.getDetailInfo();
@@ -398,6 +402,16 @@ export default {
   },
 
   methods: {
+    //视频解析单独校验
+    answerBlur() {
+      this.$refs.ruleForm.validateField("answer");
+    },
+
+    //题干发生变化的时候单独校验题干
+    questionBlur() {
+      this.$refs.ruleForm.validateField("question");
+    },
+
     //点击关闭小图标清除图片
     removeImg(index, e) {
       e.stopPropagation();
@@ -468,7 +482,7 @@ export default {
         // console.log("单选");
         this.radioCheckout = this.body.options.find((item) => {
           return item.isRight;
-        }).code;
+        })?.code;
       } else if (this.body.questionType === 2) {
         // console.log("多选");
         this.body.options.forEach((item) => {
@@ -477,6 +491,10 @@ export default {
           }
         });
       }
+      //回滚到顶部
+      this.$nextTick(() => {
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+      });
     },
 
     //复选框状态发生改变时
@@ -613,6 +631,11 @@ export default {
             tags: "", //试题标签
           };
           this.tagsList = [];
+          this.radioCheckout = "";
+          //清除两个富文本编辑器的内容
+          this.$refs.EditorOne.deleteText();
+          this.$refs.EditorTwo.deleteText();
+          //清除规则
           this.$refs.ruleForm.resetFields();
         } catch (error) {}
       } else {
@@ -650,9 +673,9 @@ export default {
     },
   },
 
-  computed: {},
-
-  components: {},
+  components: {
+    Editor,
+  },
 };
 </script>
 
@@ -731,5 +754,9 @@ export default {
   font-size: 18px;
   color: #999;
   cursor: pointer;
+}
+
+::v-deep .province .el-form-item {
+  display: inline-block;
 }
 </style>

@@ -26,6 +26,9 @@ export default {
   },
 
   created() {
+    this.$notify({
+      message: "张尊勇",
+    });
     //进入页面页码清1
     this.SET_PARAMS_PAGE(1);
     //获取学科列表

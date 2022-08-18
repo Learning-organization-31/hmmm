@@ -14,6 +14,7 @@ import routerMaps from './router'
 import questionsList from './store/questionsList'
 import questionsChoice from './store/questionsChoice'
 import companys from './store/companys'
+import articles from './store/articles'
 
 export default {
   install(module, store) {
@@ -28,6 +29,7 @@ export default {
       store.registerModule('questionsList', questionsList)
       store.registerModule('questionsChoice', questionsChoice)
       store.registerModule('companys', companys)
+      store.registerModule('articles', articles)
     }
   },
 }

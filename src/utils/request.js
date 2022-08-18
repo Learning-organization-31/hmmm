@@ -8,7 +8,6 @@ const instance = axios.create({
   baseURL: "http://liufusong.top:7001", // api的base_url
   timeout: 5000, // request timeout
 });
-
 // request interceptor
 instance.interceptors.request.use(
   (config) => {
