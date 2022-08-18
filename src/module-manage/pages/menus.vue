@@ -86,6 +86,10 @@ export default {
 
   created() {
     this.getmenus();
+    this.$notify({
+      message: "徐金平",
+      duration: 1500,
+    });
   },
 
   methods: {

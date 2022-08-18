@@ -110,6 +110,10 @@ export default {
   components: { headerTool, pageTool, permissionsAdd },
   created() {
     this.getpermission();
+    this.$notify({
+      message: "徐金平",
+      duration: 1500,
+    });
   },
 
   methods: {
