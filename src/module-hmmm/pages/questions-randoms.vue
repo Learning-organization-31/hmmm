@@ -131,7 +131,9 @@ export default {
       this.params.keyword = "";
       if (
         this.randomsInfo.counts % this.randomsInfo.pagesize === 1 &&
-        this.params.page > 1
+        this.params.page > 1 &&
+        this.params.page ===
+          Math.ceil(this.randomsInfo.counts / this.randomsInfo.pagesize)
       ) {
         this.params.page = this.params.page - 1;
       }
