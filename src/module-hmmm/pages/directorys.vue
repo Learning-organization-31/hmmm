@@ -78,19 +78,19 @@
         </el-table-column>
       </el-table>
       <el-dialog title="修改目录" :visible.sync="dialogVisible" width="23%">
-        <el-form :model="form">
+        <el-form :model="form" ref="form">
           <el-form-item label="所属学科" prop="subjectID">
             <el-select v-model="detailInfo.subjectID" class="selected">
               <el-option
-                v-for="item in directiveList"
-                :key="item.id"
-                :label="item.subjectName"
-                :value="item.subjectID"
+                v-for="item in subjectlis"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               >
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="目录名称">
+          <el-form-item label="目录名称" prop="directoryName">
             <el-input
               class="inputdir"
               v-model="detailInfo.directoryName"
@@ -131,6 +131,7 @@ import {
   list,
 } from "../../api/hmmm/directorys";
 import { mapActions, mapState } from "vuex";
+import { simple } from "../../api/hmmm/subjects";
 export default {
   components: {
     Search, //注册搜索页面
@@ -140,6 +141,7 @@ export default {
     return {
       //用来接收请求后的数据，用来渲染页面
       directiveList: [],
+      subjectlis: [],
       //页面请求后台需要用到的数据
       pages: {
         page: 1,
@@ -157,12 +159,29 @@ export default {
       value: "",
       detailInfo: {},
       states: false,
+      // formdir: {
+      //   subjectID: [
+      //     {
+      //       required: true,
+      //       message: "请选择学科",
+      //       trigger: "blur",
+      //     },
+      //   ],
+      //   directoryName: [
+      //     {
+      //       required: true,
+      //       message: "请输入目录名称",
+      //       trigger: "blur",
+      //     },
+      //   ],
+      // },
     };
   },
   //页面一加载，就需要获取到数据，然后渲染table
   created() {
     this.pages.subjectID = this.$route?.query?.row?.id;
     this.getDirective();
+    this.getSubject();
     const h = this.$createElement;
     this.$notify({
       title: "作业人",
@@ -178,6 +197,11 @@ export default {
     });
   },
   methods: {
+    async getSubject() {
+      const res = await simple();
+      // this.subjectlis = res.data.items;
+      this.subjectlis = res.data;
+    },
     indexMethod(index) {
       return index + 1;
     },
@@ -196,6 +220,7 @@ export default {
       //   pagesize: this.pages.pagesize,
       // });
       const { data } = await list(this.pages);
+      // this.pages
       this.totalCount = data.counts;
       this.directiveList = data.items;
       //通过foreach遍历，然后修改状态
@@ -212,7 +237,9 @@ export default {
       this.$refs.form.content = "";
     },
     //搜索框搜索
-    async SearchFn(value, state) {
+    async SearchFn(value, state, page, pagesize) {
+      this.pages.page = page;
+      this.pages.pagesize = pagesize;
       this.pages.directoryName = value;
       if (state !== "") {
         this.pages.state = state;
@@ -236,6 +263,12 @@ export default {
       await this.$confirm("您确定删除该数据吗？");
       await deleteDirectory(id);
       this.$message.success("删除成功");
+      let deleteAfterPage = Math.ceil(
+        (this.totalCount - 1) / this.pages.pagesize
+      );
+      let currentPage =
+        this.pages.page > deleteAfterPage ? deleteAfterPage : this.pages.page;
+      this.pages.page = currentPage < 1 ? 1 : currentPage;
       this.getDirective();
     },
     //子组件点击新增，重新渲染页面，帮子页面获取到父组件方法

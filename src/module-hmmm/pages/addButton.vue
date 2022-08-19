@@ -8,7 +8,7 @@
       >新增学科</el-button
     >
     <el-dialog title="新增学科" :visible.sync="dialogVisible" width="20%">
-      <el-form :model="form" :rules="formRules" ref="formTable">
+      <el-form :model="form" :rules="formRules" ref="ruleForm">
         <el-form-item
           label="学科名称"
           :label-width="formLabelWidth"
@@ -40,6 +40,8 @@ export default {
     return {
       dialogVisible: false,
       form: {
+        page: 1,
+        pagesize: 10,
         subjectName: "",
         isFrontDisplay: 1,
       },
@@ -73,19 +75,23 @@ export default {
     //点击取消，关闭弹窗，然后将内容重置
     close() {
       this.dialogVisible = false;
-      this.$refs.form.resetFields();
+      this.$refs.ruleForm.resetFields();
     },
     //点击按钮新增
-    async saveBtn() {
+    saveBtn() {
       //点击新增，如果内容为空，进行表单校验
-      this.$refs.formTable.validate();
-      await add({
-        subjectName: this.form.subjectName,
-        isFrontDisplay: this.form.isFrontDisplay,
+      this.$refs.ruleForm.validate(async (valid) => {
+        if (!valid) return false;
+        await add({
+          page: this.form.page,
+          pagesize: this.form.pagesize,
+          subjectName: this.form.subjectName,
+          isFrontDisplay: this.form.isFrontDisplay,
+        });
+        this.$message.success("添加成功");
+        this.$emit("parentMethod");
+        this.close();
       });
-      this.$message.success("添加成功");
-      this.$emit("parentMethod");
-      this.close();
     },
   },
 };

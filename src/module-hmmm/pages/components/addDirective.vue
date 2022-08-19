@@ -8,7 +8,7 @@
       >新增目录</el-button
     >
     <el-dialog title="新增目录" :visible.sync="dialogVisible" width="22%">
-      <el-form :model="form" :rules="formRules" ref="form">
+      <el-form :model="form" :rules="formRules" ref="forms">
         <el-form-item
           label="所属学科"
           :label-width="formLabelWidth"
@@ -20,10 +20,10 @@
             class="selectd"
           >
             <el-option
-              v-for="item in directiveList"
-              :key="item.id"
-              :label="item.subjectName"
-              :value="item.subjectID"
+              v-for="item in subjectlis"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -49,7 +49,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { add } from "../../../api/hmmm/directorys";
+import { add, list } from "../../../api/hmmm/directorys";
+import { simple } from "../../../api/hmmm/subjects";
 export default {
   props: {
     directiveList: {
@@ -59,11 +60,15 @@ export default {
   },
   data() {
     return {
+      subjectlis: [],
       dialogVisible: false,
       form: {
+        page: 1,
+        pagesize: 10,
         subjectID: "",
         directoryName: "",
       },
+
       formLabelWidth: "60px",
       //表单校验
       formRules: {
@@ -86,9 +91,16 @@ export default {
     };
   },
 
-  created() {},
+  created() {
+    this.getSubject();
+  },
 
   methods: {
+    async getSubject() {
+      const res = await simple();
+      // this.subjectlis = res.data.items;
+      this.subjectlis = res.data;
+    },
     ...mapActions("subject", ["setSubjectList"]),
 
     addFn() {
@@ -97,17 +109,21 @@ export default {
     //点击取消，关闭弹窗，然后将内容重置
     close() {
       this.dialogVisible = false;
-      this.$refs.form.resetFields();
+      this.$refs.forms.resetFields();
     },
-    async saveBtn() {
-      this.$refs.form.validate();
-      await add({
-        subjectID: this.form.subjectID,
-        directoryName: this.form.directoryName,
+    saveBtn() {
+      this.$refs.forms.validate(async (valid) => {
+        if (!valid) return false;
+        await add({
+          page: this.form.page,
+          pagesize: this.form.pagesize,
+          subjectID: this.form.subjectID,
+          directoryName: this.form.directoryName,
+        });
+        this.$message.success("添加成功");
+        this.close(); //添加成功，关闭弹层
+        this.$emit("getDirective");
       });
-      this.$message.success("添加成功");
-      this.close(); //添加成功，关闭弹层
-      this.$emit("getDirective");
     },
   },
   computed: {
@@ -148,6 +164,7 @@ export default {
   position: absolute;
   top: 100%;
   left: 30px;
+  margin-left: 10px;
 }
 ::v-deep .el-select {
   margin-left: 10px;

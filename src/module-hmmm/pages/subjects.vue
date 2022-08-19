@@ -65,7 +65,7 @@
       >
       </el-pagination>
       <el-dialog title="修改学科" :visible.sync="dialogVisible" width="25%">
-        <el-form :model="form">
+        <el-form :model="form" :rules="formRule" ref="formSubject">
           <el-form-item
             label="学科名称"
             :label-width="formLabelWidth"
@@ -89,7 +89,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <!-- <template slot-scope="{ row }"> -->
-          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button @click="close">取 消</el-button>
           <el-button type="primary" @click="saveBtn">确 定</el-button>
           <!-- </template> -->
         </span>
@@ -153,6 +153,23 @@ export default {
       formLabelWidth: "60px",
       value: "",
       subjectSearch: "",
+      formRule: {
+        subjectName: [
+          {
+            required: true,
+            message: "请输入学科名称",
+            trigger: "blur",
+          },
+        ],
+        isFrontDisplay: [
+          {
+            required: true,
+            message: "是否显示",
+            trigger: "blur",
+          },
+        ],
+        pageCount: 0,
+      },
     };
   },
   created() {
@@ -190,6 +207,7 @@ export default {
       const { data } = await list(this.pageinfo);
       //获取标签数量
       this.infoCount = data.counts;
+      this.pageCount = data.pages;
       //拿到table表格数据，然后将其进行渲染
       this.subjectListInfo = data.items;
       this.subjectListInfo.forEach((item, index) => {
@@ -205,8 +223,10 @@ export default {
       this.$refs.formTable.content = "";
     },
     //点击搜索，出现对应内容
-    async SearchFn(val) {
+    async SearchFn(val, page, pagesize) {
       this.pageinfo.subjectName = val;
+      this.pageinfo.page = page;
+      this.pageinfo.pagesize = pagesize;
       this.getSubject();
     },
     indexMethod(index) {
@@ -228,7 +248,7 @@ export default {
     },
     // 点击分页改变
     currentChange(val) {
-      this.pageinfo.page = +val;
+      this.pageinfo.page = val;
       this.getSubject();
     },
     //修改数字，显示每一页
@@ -245,6 +265,14 @@ export default {
       await this.$confirm("您确定删除该数据吗？");
       await deleteInfo(row.id);
       this.$message.success("删除成功");
+      let deleteAfterPage = Math.ceil(
+        (this.infoCount - 1) / this.pageinfo.pagesize
+      );
+      let currentPage =
+        this.pageinfo.page > deleteAfterPage
+          ? deleteAfterPage
+          : this.pageinfo.page;
+      this.pageinfo.page = currentPage < 1 ? 1 : currentPage;
       this.getSubject();
     },
     //打开修改信息弹层
@@ -252,6 +280,10 @@ export default {
       const { data } = await subjectInfo(row.id);
       this.subjectInfo = data;
       this.dialogVisible = true;
+    },
+    close() {
+      this.dialogVisible = false;
+      this.$refs.formSubject.resetFields();
     },
     //修改信息
     async saveBtn() {
@@ -262,7 +294,7 @@ export default {
       });
       this.$message.success("修改成功");
       this.getSubject();
-      this.dialogVisible = false;
+      this.close();
     },
   },
 };
