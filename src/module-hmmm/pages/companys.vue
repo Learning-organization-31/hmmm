@@ -329,15 +329,14 @@ export default {
       })
         .then(async () => {
           await remove({ id: id })
-          this.page = 1
-          this.searchList()
+          if (this.companysList.counts === 11) this.page = 1
+          this.getCompanysListInit()
           this.$message({
             type: 'success',
             message: '删除成功!',
           })
         })
         .catch(() => {
-          this.searchList()
           this.$message({
             type: 'info',
             message: '已取消',

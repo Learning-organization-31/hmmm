@@ -301,11 +301,12 @@ export default {
       })
         .then(async () => {
           await remove(obj)
+          if (this.InterviewList.counts === 11) this.page = 1
+          this.getInterviewListFirst()
           this.$message({
             type: 'success',
             message: '删除成功!',
           })
-          this.searchFn()
         })
         .catch(() => {})
     },
