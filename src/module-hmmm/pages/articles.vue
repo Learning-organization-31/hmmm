@@ -301,7 +301,7 @@ export default {
       })
         .then(async () => {
           await remove(obj)
-          if (this.InterviewList.counts === 11) this.page = 1
+          if (this.InterviewList.counts % 10 === 1) this.page = this.page - 1
           this.getInterviewListFirst()
           this.$message({
             type: 'success',

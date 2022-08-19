@@ -149,8 +149,9 @@ export default {
             await update(data).then(() => {
               this.$emit('newDataes', this.formBase)
             })
-            this.$parent.searchList()
+            this.$parent.getCompanysListInit()
           } else {
+            if (!this.formBase.isFamous) this.companysListEdit.isFamous = false
             await add(this.formBase).then(() => {
               this.$emit('newDataes', this.formBase)
             })
@@ -165,8 +166,9 @@ export default {
     },
     onClose() {
       setTimeout(() => {
+        this.companysListEdit.id = ''
         this.companysListEdit.city = ''
-        this.companysListEdit.isFamous = null
+        this.companysListEdit.isFamous = ''
         this.$nextTick(() => {
           this.$refs.dataForm.resetFields()
         })

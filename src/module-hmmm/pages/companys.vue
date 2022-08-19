@@ -329,7 +329,7 @@ export default {
       })
         .then(async () => {
           await remove({ id: id })
-          if (this.companysList.counts === 11) this.page = 1
+          if (this.companysList.counts % 10 === 1) this.page = this.page - 1
           this.getCompanysListInit()
           this.$message({
             type: 'success',
