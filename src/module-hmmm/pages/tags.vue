@@ -4,12 +4,12 @@
       <div v-if="$route?.query?.row?.id">
         <el-breadcrumb separator=">">
           <el-breadcrumb-item :to="{ path: '/subjects/list' }"
-            >学科管理</el-breadcrumb-item
+            ><span class="manger"> 学科管理 </span></el-breadcrumb-item
           >
           <el-breadcrumb-item>{{
             $route.query.row.subjectName
           }}</el-breadcrumb-item>
-          <el-breadcrumb-item>目录</el-breadcrumb-item>
+          <el-breadcrumb-item>标签管理</el-breadcrumb-item>
         </el-breadcrumb>
         <div class="backto" @click="backtoUp">
           <i class="el-icon-back"></i>
@@ -75,18 +75,18 @@
       <el-dialog title="修改目录" :visible.sync="dialogVisible" width="22%">
         <el-form :model="form" :rules="EditformRules" ref="editForm">
           <el-form-item label="所属学科" prop="subjectID">
-            <el-select v-model="tagInfo.subjectID" class="selected">
+            <el-select v-model="tagInfoObj.subjectID" class="selected">
               <el-option
-                v-for="item in tagList"
-                :key="item.id"
-                :label="item.subjectName"
-                :value="item.subjectID"
+                v-for="item in subjectlis"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               >
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="目录名称" prop="tagName">
-            <el-input class="inputdir" v-model="tagInfo.tagName"></el-input>
+            <el-input class="inputdir" v-model="tagInfoObj.tagName"></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -122,6 +122,8 @@ import {
   changeState,
 } from "../../api/hmmm/tags";
 import { mapState, mapActions } from "vuex";
+import { simple } from "../../api/hmmm/subjects";
+
 export default {
   components: {
     Search,
@@ -129,6 +131,7 @@ export default {
   },
   data() {
     return {
+      subjectlis: [],
       typeList: [],
       tagList: [],
       pages: {
@@ -139,7 +142,7 @@ export default {
         subjectID: null,
       },
       totalCount: 0,
-      tagInfo: {},
+      tagInfoObj: {},
       dialogVisible: false,
       form: {
         subjectID: 0,
@@ -151,7 +154,7 @@ export default {
           {
             required: true,
             message: "请选择学科",
-            trigger: "blur",
+            trigger: "change",
           },
         ],
         tagName: [
@@ -166,6 +169,7 @@ export default {
   },
   created() {
     this.getTagList();
+    this.getSubject();
     this.pages.subjectID = this.$route?.query?.row?.id;
     const h = this.$createElement;
     this.$notify({
@@ -182,6 +186,11 @@ export default {
     });
   },
   methods: {
+    async getSubject() {
+      const res = await simple();
+      // this.subjectlis = res.data.items;
+      this.subjectlis = res.data;
+    },
     indexMethod(index) {
       return index + 1;
     },
@@ -195,8 +204,10 @@ export default {
       //   pagesize: this.pages.pagesize,
       // });
       const { data } = await list(this.pages);
+      console.log(data);
       this.taginfos = data.counts;
       this.tagList = data.items;
+      console.log(this.tagList);
       // this.tagList.forEach((item, index) => {
       //   if (item.state === 1) {
       //     this.tagList[index].state = "已启用";
@@ -212,7 +223,9 @@ export default {
     },
     SearchClear() {},
     //点击搜索
-    SearchFn(value, state) {
+    SearchFn(value, state, page, pagesize) {
+      this.pages.page = page;
+      this.pages.pagesize = pagesize;
       this.pages.tagName = value;
       if (state !== "") {
         this.pages.state = state;
@@ -234,6 +247,12 @@ export default {
       await this.$confirm("是否确认删除？");
       await delTag(id);
       this.$message.success("删除成功");
+      let deleteAfterPage = Math.ceil(
+        (this.taginfos - 1) / this.pages.pagesize
+      );
+      let currentPage =
+        this.pages.page > deleteAfterPage ? deleteAfterPage : this.pages.page;
+      this.pages.page = currentPage < 1 ? 1 : currentPage;
       this.getTagList();
     },
     //点击修改状态按钮
@@ -250,14 +269,15 @@ export default {
     //点击修改按钮
     async editInfo(id) {
       const { data } = await tagInfo(id);
-      this.tagInfo = data;
+      this.tagInfoObj = data;
+      console.log(this.tagInfoObj);
       this.dialogVisible = true;
     },
     async saveBtn() {
       await update({
-        id: this.tagInfo.id,
-        subjectID: this.tagInfo.subjectID,
-        tagName: this.tagInfo.tagName,
+        id: this.tagInfoObj.id,
+        subjectID: this.tagInfoObj.subjectID,
+        tagName: this.tagInfoObj.tagName,
       });
       this.$message.success("修改成功");
       this.dialogVisible = false;
@@ -297,6 +317,9 @@ export default {
   }
   ::v-deep .el-form-item__error {
     margin-left: 80px;
+  }
+  .manger {
+    color: #333;
   }
   .backto {
     color: blue;

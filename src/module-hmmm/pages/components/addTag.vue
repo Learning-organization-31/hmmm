@@ -20,10 +20,10 @@
             class="selected"
           >
             <el-option
-              v-for="item in tagList"
-              :key="item.id"
-              :label="item.subjectName"
-              :value="item.subjectID"
+              v-for="item in subjectlis"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -50,6 +50,8 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { add } from "../../../api/hmmm/tags";
+import { simple } from "../../../api/hmmm/subjects";
+
 export default {
   props: {
     tagList: {
@@ -59,8 +61,11 @@ export default {
   },
   data() {
     return {
+      subjectlis: [],
       dialogVisible: false,
       form: {
+        page: 1,
+        pagesize: 10,
         subjectID: "",
         tagName: "",
       },
@@ -71,7 +76,7 @@ export default {
           {
             required: true,
             message: "请选择学科",
-            trigger: "blur",
+            trigger: "change",
           },
         ],
         tagName: [
@@ -86,9 +91,16 @@ export default {
     };
   },
 
-  created() {},
+  created() {
+    this.getSubject();
+  },
 
   methods: {
+    async getSubject() {
+      const res = await simple();
+      this.subjectlis = res.data;
+      console.log(this.subjectlis);
+    },
     ...mapActions("subject", ["setSubjectList"]),
     addFn() {
       this.dialogVisible = true;
@@ -98,12 +110,14 @@ export default {
       this.dialogVisible = false;
       this.$refs.form.resetFields();
     },
-    async saveBtn() {
-      this.$refs.form.validate();
-      await add(this.form);
-      this.$message.success("添加成功");
-      this.close(); //添加成功，关闭弹层
-      this.$emit("getTag");
+    saveBtn() {
+      this.$refs.form.validate(async (valid) => {
+        if (!valid) return false;
+        await add(this.form);
+        this.$message.success("添加成功");
+        this.close(); //添加成功，关闭弹层
+        this.$emit("getTag");
+      });
     },
   },
   computed: {
