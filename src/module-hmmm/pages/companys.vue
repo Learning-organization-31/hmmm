@@ -205,6 +205,7 @@ export default {
         text: '',
         pageTitle: '',
       },
+      flag: false,
     }
   },
   components: {
@@ -245,8 +246,17 @@ export default {
       return findItem ? findItem.value : '未知'
     },
     searchList() {
+      this.flag = true
       this.page = 1
       this.getCompanysListInit()
+    },
+    async addSearchList() {
+      this.tableLoading = true
+      await this.getCompanysList({
+        page: 1,
+        pagesize: this.pagesize,
+      })
+      this.tableLoading = false
     },
 
     async getCompanysListInit() {
@@ -330,7 +340,12 @@ export default {
         .then(async () => {
           await remove({ id: id })
           if (this.companysList.counts % 10 === 1) this.page = this.page - 1
-          this.getCompanysListInit()
+          await this.getCompanysListInit()
+
+          if (this.flag && this.companysList.counts === 0) {
+            this.addSearchList()
+            this.flag = false
+          }
           this.$message({
             type: 'success',
             message: '删除成功!',

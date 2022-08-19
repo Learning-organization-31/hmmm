@@ -102,7 +102,7 @@ export default {
         this.$message.success('数据更新成功')
       } else {
         const res = await add(data)
-        this.$parent.searchFn()
+        this.$parent.addSearchFn()
         this.$message.success('数据添加成功')
       }
       this.$refs.ruleForm.resetFields()

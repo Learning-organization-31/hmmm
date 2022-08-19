@@ -210,6 +210,7 @@ export default {
       titleInfo: '',
       showVideo: false,
       videoUrl: 'https://v-cdn.zjol.com.cn/277004.mp4',
+      flag: false,
     }
   },
   components: {
@@ -255,8 +256,17 @@ export default {
       this.tableLoading = false
     },
     searchFn() {
+      this.flag = true
       this.page = 1
       this.getInterviewListFirst()
+    },
+    async addSearchFn() {
+      this.tableLoading = true
+      await this.getInterviewList({
+        page: 1,
+        pagesize: this.pagesize,
+      })
+      this.tableLoading = false
     },
 
     async currentChange(val) {
@@ -302,7 +312,13 @@ export default {
         .then(async () => {
           await remove(obj)
           if (this.InterviewList.counts % 10 === 1) this.page = this.page - 1
-          this.getInterviewListFirst()
+          await this.getInterviewListFirst()
+
+          if (this.flag && this.InterviewList.counts === 0) {
+            this.addSearchFn()
+            this.flag = false
+          }
+
           this.$message({
             type: 'success',
             message: '删除成功!',

@@ -155,7 +155,7 @@ export default {
             await add(this.formBase).then(() => {
               this.$emit('newDataes', this.formBase)
             })
-            this.$parent.searchList()
+            this.$parent.addSearchList()
           }
 
           this.$message.success('数据增改成功')
