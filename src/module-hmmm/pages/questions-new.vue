@@ -242,6 +242,9 @@
 
       <el-form-item label="试题标签: " prop="tags">
         <el-select
+          filterable
+          default-first-option
+          allow-create
           placeholder="请选择"
           style="width: 400px"
           multiple
@@ -490,6 +493,23 @@ export default {
             this.checkList.push(item.code);
           }
         });
+      }
+      //获取目录,标签列表和二级城市列表
+      if (this.body.province) {
+        this.citysList = citys(this.body.province);
+      }
+      if (this.body.subjectID) {
+        const { data } = await simple({
+          subjectID: this.body.subjectID,
+          pagesize: 999999,
+        });
+        this.tagsList = (
+          await getTagsList({
+            subjectID: this.body.subjectID,
+            pagesize: 999999,
+          })
+        ).data.items;
+        this.simpleList = data;
       }
 
       //回滚到顶部
