@@ -146,6 +146,9 @@ export default {
       })
         .then(async () => {
           await remove(id);
+          if (this.permissionList.list.length <= 1) {
+            this.getpermissTerm.page -= 1;
+          }
           this.$message.success("删除成功");
           this.getpermission();
         })

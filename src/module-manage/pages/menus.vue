@@ -14,22 +14,33 @@
         row-key="id"
         :tree-props="{ children: 'childs' }"
         default-expand-all
+        ref="table"
         >>
         <el-table-column label="标题">
           <template v-slot="{ row }">
             <i
               v-if="row.childs && row.childs.some((item) => !item.is_point)"
               class="el-icon-folder-opened menus-icon"
+              @click="opentree(row)"
             ></i>
             <i
+              @click="opentree(row)"
               v-if="
                 !row.is_point &&
                 (row.childs?.every((item) => item.is_point) || !row.childs)
               "
               class="el-icon-document-remove menus-icon"
             ></i>
-            <i v-if="row.is_point" class="el-icon-view menus-icon"></i>
-            {{ row.title }}
+            <i
+              @click="opentree(row)"
+              v-if="row.is_point"
+              class="el-icon-view menus-icon"
+            ></i>
+            <span
+              style="margin-left: 5px; cursor: pointer"
+              @click="opentree(row)"
+              >{{ row.title }}</span
+            >
           </template>
         </el-table-column>
         <el-table-column prop="code" label="权限点代码"> </el-table-column>
@@ -121,6 +132,18 @@ export default {
         this.$refs.menusAdd.changeToMenu();
       }
     },
+    // 展开树
+    opentree(row) {
+      console.log(!row.isOpenTree);
+      if (row.isOpenTree == undefined) {
+        row.isOpenTree = false;
+      } else {
+        row.isOpenTree = !row.isOpenTree;
+      }
+
+      this.$refs.table.toggleRowExpansion(row, row.isOpenTree);
+    },
+
     // 点击删除
     delmenus(id) {
       this.$confirm("此操作将永久删除该菜单, 是否继续?", "提示", {
@@ -167,7 +190,7 @@ export default {
     font-size: 20px;
   }
 }
-// ::v-deep.el-table [class*="el-table__row--level"] .el-table__expand-icon {
-//   display: none;
-// }
+::v-deep.el-table [class*="el-table__row--level"] .el-table__expand-icon {
+  display: none;
+}
 </style>

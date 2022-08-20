@@ -203,6 +203,9 @@ export default {
       })
         .then(async () => {
           await remove(userid);
+          if (this.userList.list.length <= 1) {
+            this.getUserTerm.page -= 1;
+          }
           this.$message.success("删除成功");
           this.getUsersList();
         })
