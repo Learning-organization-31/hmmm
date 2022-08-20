@@ -120,7 +120,6 @@ export default {
       this.$refs.menusAdd.handleResetForm();
       this.$refs.menusAdd.dialogFormVisible = true;
       const { data } = await detail(id);
-      console.log(data);
 
       if (data.is_point) {
         this.$refs.menusAdd.type = "points";
@@ -134,7 +133,6 @@ export default {
     },
     // 展开树
     opentree(row) {
-      console.log(!row.isOpenTree);
       if (row.isOpenTree == undefined) {
         row.isOpenTree = false;
       } else {
