@@ -21,10 +21,12 @@ import base from "@/module-manage/"; // 用户管理
 import hmmm from "@/module-hmmm/"; // 黑马面面
 
 //富文本编辑器
-import VueQuillEditor from 'vue-quill-editor'
+import VueQuillEditor from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
+
+
 
 Vue.use(VueQuillEditor);
 Vue.use(dashboard, store);

@@ -21,6 +21,9 @@
 </template>
 
 <script>
+// 代码块高亮
+import hljs from "highlight.js";
+import "highlight.js/styles/monokai-sublime.css";
 import COS from "cos-js-sdk-v5";
 const cos = new COS({
   SecretId: "AKIDb3IJ5f191g7KI2ZrujLjsmQr43nMhpjO",
@@ -40,6 +43,11 @@ export default {
       editorOption: {
         placeholder: "",
         modules: {
+          syntax: {
+            highlight: (text) => {
+              return hljs.highlightAuto(text).value; // 这里就是代码高亮需要配置的地方
+            },
+          },
           toolbar: {
             container: toolbarOptions,
             handlers: {
