@@ -65,7 +65,7 @@
       >
       </el-pagination>
       <el-dialog title="修改学科" :visible.sync="dialogVisible" width="25%">
-        <el-form :model="form" :rules="formRule" ref="formSubject">
+        <el-form :model="subjectInfo" :rules="formRule" ref="formSubject">
           <el-form-item
             label="学科名称"
             :label-width="formLabelWidth"
@@ -287,6 +287,7 @@ export default {
     },
     //修改信息
     async saveBtn() {
+      await this.$refs.formSubject.validate();
       await update({
         id: this.subjectInfo.id,
         subjectName: this.subjectInfo.subjectName,

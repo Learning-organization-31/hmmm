@@ -73,7 +73,7 @@
         </el-table-column>
       </el-table>
       <el-dialog title="修改目录" :visible.sync="dialogVisible" width="22%">
-        <el-form :model="form" :rules="EditformRules" ref="editForm">
+        <el-form :model="tagInfoObj" :rules="EditformRules" ref="editForm">
           <el-form-item label="所属学科" prop="subjectID">
             <el-select v-model="tagInfoObj.subjectID" class="selected">
               <el-option
@@ -91,7 +91,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <!-- <template slot-scope="row"> -->
-          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button @click="close">取 消</el-button>
           <el-button type="primary" @click="saveBtn">确 定</el-button>
           <!-- </template> -->
         </span>
@@ -142,7 +142,10 @@ export default {
         subjectID: null,
       },
       totalCount: 0,
-      tagInfoObj: {},
+      tagInfoObj: {
+        subjectID: "",
+        tagName: "",
+      },
       dialogVisible: false,
       form: {
         subjectID: 0,
@@ -273,7 +276,12 @@ export default {
       console.log(this.tagInfoObj);
       this.dialogVisible = true;
     },
+    close() {
+      this.dialogVisible = false;
+      this.$refs.editForm.resetFields();
+    },
     async saveBtn() {
+      await this.$refs.editForm.validate();
       await update({
         id: this.tagInfoObj.id,
         subjectID: this.tagInfoObj.subjectID,
