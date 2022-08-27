@@ -47,6 +47,9 @@
 </template>
 
 <script>
+// 代码块高亮
+import hljs from "highlight.js";
+import "highlight.js/styles/monokai-sublime.css";
 const toolbarOptions = [
   ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线 -----['bold', 'italic', 'underline', 'strike']
   [{ list: 'ordered' }, { list: 'bullet' }], // 有序、无序列表-----[{ list: 'ordered' }, { list: 'bullet' }]
@@ -62,6 +65,11 @@ export default {
       editorOption: {
         placeholder: '',
         modules: {
+            syntax: {
+            highlight: (text) => {
+              return hljs.highlightAuto(text).value; // 这里就是代码高亮需要配置的地方
+            },
+          },
           toolbar: {
             container: toolbarOptions,
           },
