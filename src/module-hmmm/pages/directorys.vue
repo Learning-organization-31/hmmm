@@ -78,7 +78,7 @@
         </el-table-column>
       </el-table>
       <el-dialog title="修改目录" :visible.sync="dialogVisible" width="23%">
-        <el-form :model="form" ref="form">
+        <el-form :model="detailInfo" ref="form" :rules="formRules">
           <el-form-item label="所属学科" prop="subjectID">
             <el-select v-model="detailInfo.subjectID" class="selected">
               <el-option
@@ -99,7 +99,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <!-- <template slot-scope="row"> -->
-          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button @click="close">取 消</el-button>
           <el-button type="primary" @click="saveBtn">确 定</el-button>
           <!-- </template> -->
         </span>
@@ -157,24 +157,27 @@ export default {
       dialogVisible: false,
       form: {},
       value: "",
-      detailInfo: {},
+      detailInfo: {
+        subjectID: "",
+        directoryName: "",
+      },
       states: false,
-      // formdir: {
-      //   subjectID: [
-      //     {
-      //       required: true,
-      //       message: "请选择学科",
-      //       trigger: "blur",
-      //     },
-      //   ],
-      //   directoryName: [
-      //     {
-      //       required: true,
-      //       message: "请输入目录名称",
-      //       trigger: "blur",
-      //     },
-      //   ],
-      // },
+      formRules: {
+        subjectID: [
+          {
+            required: true,
+            message: "请选择学科",
+            trigger: "blur",
+          },
+        ],
+        directoryName: [
+          {
+            required: true,
+            message: "请输入目录名称",
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   //页面一加载，就需要获取到数据，然后渲染table
@@ -292,8 +295,13 @@ export default {
       this.detailInfo = data;
       this.dialogVisible = true;
     },
+    close() {
+      this.dialogVisible = false;
+      this.$refs.form.resetFields();
+    },
     //点击确认，更改信息
     async saveBtn() {
+      await this.$refs.form.validate();
       await update({
         id: this.detailInfo.id,
         subjectID: this.detailInfo.subjectID,
