@@ -80,115 +80,117 @@
 </template>
 
 <script>
-import headerTool from "../components/header-tool.vue";
-import menusAdd from "../components/menu-add.vue";
-import { mapActions, mapState } from "vuex";
-import { remove, detail } from "@/api/base/menus";
+import headerTool from '../components/header-tool.vue'
+import menusAdd from '../components/menu-add.vue'
+import { mapActions, mapState } from 'vuex'
+import { remove, detail } from '@/api/base/menus'
 
 export default {
   data() {
     return {
       renderList: [],
       isDisabled: false,
-      menusAddText: "创建",
-    };
+      menusAddText: '创建',
+    }
   },
 
   components: { headerTool, menusAdd },
 
   created() {
-    this.getmenus();
+    this.getmenus()
     this.$notify({
-      message: "徐金平",
+      message: '徐金平',
       duration: 1500,
-    });
+    })
   },
 
   methods: {
-    ...mapActions("users", ["getmenusList"]),
+    ...mapActions('users', ['getmenusList']),
     // 获取菜单列表
     async getmenus() {
-      await this.getmenusList();
+      await this.getmenusList()
       this.renderList = JSON.parse(
-        JSON.stringify(this.menusList).replace(/points/g, "childs")
-      );
+        JSON.stringify(this.menusList).replace(/points/g, 'childs')
+      )
     },
     // 点击修改
     async exitmenus(id) {
-      this.menusAddText = "编辑";
-      this.isDisabled = true;
-      this.$refs.menusAdd.handleResetForm();
-      this.$refs.menusAdd.dialogFormVisible = true;
-      const { data } = await detail(id);
+      this.menusAddText = '编辑'
+      this.isDisabled = true
+      this.$refs.menusAdd.handleResetForm()
+      this.$refs.menusAdd.dialogFormVisible = true
+      const { data } = await detail(id)
 
       if (data.is_point) {
-        this.$refs.menusAdd.type = "points";
-        this.$refs.menusAdd.formPoints = data;
-        this.$refs.menusAdd.changeToPoints();
+        this.$refs.menusAdd.type = 'points'
+        this.$refs.menusAdd.formPoints = data
+        this.$refs.menusAdd.changeToPoints()
       } else {
-        this.$refs.menusAdd.type = "menu";
-        this.$refs.menusAdd.formMenu = data;
-        this.$refs.menusAdd.changeToMenu();
+        this.$refs.menusAdd.type = 'menu'
+        this.$refs.menusAdd.formMenu = data
+        this.$refs.menusAdd.changeToMenu()
       }
     },
     // 展开树
     opentree(row) {
       if (row.isOpenTree == undefined) {
-        row.isOpenTree = false;
+        row.isOpenTree = false
       } else {
-        row.isOpenTree = !row.isOpenTree;
+        row.isOpenTree = !row.isOpenTree
       }
 
-      this.$refs.table.toggleRowExpansion(row, row.isOpenTree);
+      this.$refs.table.toggleRowExpansion(row, row.isOpenTree)
     },
 
     // 点击删除
     delmenus(id) {
-      this.$confirm("此操作将永久删除该菜单, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('此操作将永久删除该菜单, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
       })
         .then(async () => {
-          await remove(id);
+          await remove(id)
           this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-          this.getmenus();
+            type: 'success',
+            message: '删除成功!',
+          })
+          this.getmenus()
         })
         .catch(() => {
           this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
+            type: 'info',
+            message: '已取消删除',
+          })
+        })
     },
     // 点击添加菜单
     rightBtn() {
-      this.menusAddText = "创建";
-      this.$refs.menusAdd.handleResetForm();
-      this.$refs.menusAdd.dialogFormVisible = true;
+      this.menusAddText = '创建'
+      this.$refs.menusAdd.handleResetForm()
+      this.$refs.menusAdd.dialogFormVisible = true
     },
     handleCloseModal() {
-      this.isDisabled = false;
-      this.getmenus();
-      this.$refs.menusAdd.OnClose();
+      this.isDisabled = false
+      this.getmenus()
+      this.$refs.menusAdd.OnClose()
     },
   },
   computed: {
-    ...mapState("users", ["menusList"]),
+    ...mapState('users', ['menusList']),
   },
-};
+}
 </script>
 
 <style scoped lang="less">
 .menus-box {
   .menus-icon {
     font-size: 20px;
+    cursor: pointer;
   }
 }
-::v-deep.el-table [class*="el-table__row--level"] .el-table__expand-icon {
-  display: none;
+::v-deep.el-table [class*='el-table__row--level'] .el-table__expand-icon {
+  opacity: 0;
+  width: 15px;
 }
 </style>
